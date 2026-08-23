@@ -1,26 +1,177 @@
 @import "tailwindcss";
 
+@theme {
+  --color-navy-50: #eef1ff;
+  --color-navy-100: #dbe1ff;
+  --color-navy-200: #b8c4ff;
+  --color-navy-300: #8b9dff;
+  --color-navy-500: #2a3fb8;
+  --color-navy-700: #0d1f8a;
+  --color-navy-900: #001377;
+  --color-navy-950: #000b4a;
+  --color-navy-990: #00072f;
+
+  --color-gold-300: #ffd76b;
+  --color-gold-400: #f8c53c;
+  --color-gold-500: #e5a300;
+  /* gold-600/700 are the only golds used on white — both clear WCAG AA 4.5:1 */
+  --color-gold-600: #8a5f00;
+  --color-gold-700: #6f4c00;
+
+  /* Warm neutrals — premium surfaces are rarely pure #fff */
+  --color-bone-50: #fbfaf7;
+  --color-bone-100: #f5f2ec;
+  --color-bone-200: #e9e4d9;
+
+  /*
+   * Semantic tokens. Everything that flips between light and dark goes through
+   * these — components never hard-code a light-only colour. The always-dark
+   * bands (hero, records, CTA, footer) keep using navy/white directly, since
+   * they read the same in both themes.
+   */
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-body: var(--ink-body);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-accent-ink: var(--accent-ink);
+
+  --font-sans: var(--font-sans-custom), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-custom), ui-serif, Georgia, serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --surface: #fbfaf7;
+  --surface-2: #ffffff;
+  --surface-3: #f5f2ec;
+  --ink: #001377;
+  --ink-body: #475569;
+  --ink-muted: #64748b;
+  --line: #e9e4d9;
+  /* Darkened gold — the only gold that clears 4.5:1 on a light surface */
+  --accent-ink: #8a5f00;
+
+  --background: var(--surface);
+  --foreground: var(--ink-body);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --surface: #00061c;
+  --surface-2: #030d3a;
+  --surface-3: #01092c;
+  --ink: #f3f1ea;
+  --ink-body: #b8c4ff;
+  --ink-muted: #8b9dff;
+  --line: rgba(255, 255, 255, 0.1);
+  /* On dark, the light gold is the readable one */
+  --accent-ink: #f8c53c;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Suppress transition flash while the theme class is swapped */
+.theme-switching * {
+  transition: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-navy-900);
+  color: #fff;
+}
+
+/*
+ * Reveal animations start translated on the X axis, which pushes past the
+ * viewport edge until they animate in. `clip` contains that without creating a
+ * scroll container, so `position: sticky` inside still works (`hidden` breaks it).
+ */
+main {
+  overflow-x: clip;
+}
+
+/* Deep editorial ground for dark sections */
+.mesh-navy {
+  background-color: #00072f;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 12% 8%, rgba(13, 31, 138, 0.85), transparent 60%),
+    radial-gradient(ellipse 65% 55% at 88% 18%, rgba(42, 63, 184, 0.55), transparent 62%),
+    radial-gradient(ellipse 70% 60% at 70% 95%, rgba(229, 163, 0, 0.16), transparent 65%);
+}
+
+.hero-mask {
+  background-image: linear-gradient(
+    115deg,
+    rgba(0, 7, 47, 0.94) 0%,
+    rgba(0, 19, 119, 0.8) 45%,
+    rgba(0, 19, 119, 0.32) 100%
+  );
+}
+
+.grain-texture {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Thin rule used to open editorial sections */
+.rule-gold {
+  background: linear-gradient(90deg, var(--color-gold-400), transparent);
+}
+
+/*
+ * Editorial display type. Instrument Serif is a single-weight, high-contrast
+ * face — it needs tight tracking and generous size to read as premium rather
+ * than as a default serif.
+ */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.022em;
+  /*
+   * Instrument Serif has deep descenders, especially in italic. At 0.98 the
+   * line box is shorter than the glyphs, so `.line-mask` clipped the tails off
+   * every lower line ("compromise on", "about us"). 1.06 gives them room.
+   */
+  line-height: 1.06;
+}
+
+.display-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/*
+ * Masked line-in reveal for display headings. The padding must clear the
+ * font's descenders or the mask crops them; the negative margin cancels the
+ * extra space so line rhythm is unchanged.
+ */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.26em;
+  margin-bottom: -0.26em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
