@@ -4,7 +4,16 @@ import { useState } from "react"
 import { Send } from "lucide-react"
 import { site } from "@/lib/site"
 
-export function ContactForm() {
+/**
+ * `emailLabel` exists because the store labelled this field differently on
+ * different pages — "E-mail" on Contact Us, "Email Address" on the garden
+ * page — and both wordings are theirs to keep.
+ */
+export function ContactForm({
+  emailLabel = "E-mail",
+}: {
+  emailLabel?: string
+} = {}) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState("")
@@ -29,7 +38,7 @@ export function ContactForm() {
           className="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm outline-none transition focus:border-navy-500"
         />
       </Field>
-      <Field label="E-mail">
+      <Field label={emailLabel}>
         <input
           required
           type="email"

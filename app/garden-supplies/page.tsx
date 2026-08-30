@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowRight, Clock, Mail, MapPin, Phone, Printer } from "lucide-react"
 import { PageHero } from "@/components/PageHero"
 import { BrandStrip } from "@/components/BrandStrip"
+import { ContactForm } from "@/components/ContactForm"
 import { Magnetic } from "@/components/motion/Magnetic"
 import { Parallax } from "@/components/motion/Parallax"
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal"
@@ -224,6 +225,18 @@ export default function GardenSuppliesPage() {
             </div>
           </Reveal>
         </div>
+
+        {/* The archived page carried its own enquiry form beneath the contact
+            and hours blocks, labelled "Email Address" rather than "E-mail". */}
+        <Reveal from="up" className="mx-auto mt-10 max-w-3xl px-6">
+          <div className="rounded-[1.6rem] border border-line bg-surface-2 p-9 md:p-10">
+            <span className="block h-px w-10 rule-gold" />
+            <h2 className="display mt-6 text-[2.2rem] text-ink">
+              Send Us a Message
+            </h2>
+            <ContactForm emailLabel="Email Address" />
+          </div>
+        </Reveal>
       </section>
     </main>
   )

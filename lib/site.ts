@@ -506,13 +506,18 @@ export const brands = [
 ]
 
 /* Full weekday hours as published on the store's archived contact block. */
+/**
+ * Times are the store's own strings, character for character — hyphen and no
+ * spaces on weekdays, spaced en-dash on Saturday. Tidying the punctuation into
+ * one house style would be rewriting their opening hours.
+ */
 export const fullHours = [
-  { day: "Monday", time: "8:00am – 5:00pm" },
-  { day: "Tuesday", time: "8:00am – 5:00pm" },
-  { day: "Wednesday", time: "8:00am – 5:00pm" },
-  { day: "Thursday", time: "8:00am – 5:00pm" },
-  { day: "Friday", time: "8:00am – 5:00pm" },
-  { day: "Saturday", time: "8:00am – 12:00pm" },
+  { day: "Monday", time: "8:00am-5:00pm" },
+  { day: "Tuesday", time: "8:00am-5:00pm" },
+  { day: "Wednesday", time: "8:00am-5:00pm" },
+  { day: "Thursday", time: "8:00am-5:00pm" },
+  { day: "Friday", time: "8:00am-5:00pm" },
+  { day: "Saturday", time: "8:00 am–12:00 pm" },
   { day: "Sunday & Public Holidays", time: "Closed" },
 ]
 
