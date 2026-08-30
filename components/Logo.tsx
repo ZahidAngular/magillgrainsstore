@@ -45,8 +45,11 @@ export function Logo({
         >
           Magill Grain Store
         </span>
+        {/* Hidden on the narrowest phones: the tracked-out line runs ~190px,
+            which pushed the header past 375px and scrolled every page
+            sideways. Returns at `sm`, where there is room for it. */}
         <span
-          className={`block whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.16em] ${
+          className={`hidden whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.16em] sm:block ${
             isLight ? "text-gold-400" : "text-ink-muted"
           }`}
         >

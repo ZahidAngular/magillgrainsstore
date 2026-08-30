@@ -20,21 +20,251 @@ export type NavItem = {
   children?: NavItem[]
 }
 
+export type MegaItem = {
+  label: string
+  href: string
+  /** Lucide icon name, resolved in the MegaPanel. */
+  icon: string
+  blurb: string
+}
+
+export type MegaGroup = {
+  /** The store's own group heading, kept word for word. */
+  name: string
+  items: MegaItem[]
+}
+
+export type MegaMenu = {
+  label: string
+  href: string
+  eyebrow: string
+  groups: MegaGroup[]
+}
+
+/**
+ * The store's menu, preserved group for group and label for label.
+ *
+ * Their bar carried 13 top-level items and 23 pages. Nineteen labels will not
+ * fit across one row at any sane size — they wrapped to three lines and pushed
+ * the last two off screen — so the tree is split across two panels. The
+ * original group headings (Grain, Poultry, Birds, Cat & Dog, Ruminant,
+ * Fertilizers, Others) survive as column headings inside those panels, so no
+ * label from the source menu is lost.
+ *
+ * One heading is ours: "Garden & Farm". Rabbit Supplies, Garden Supplies,
+ * Hay & Mulch and Laucke Flour were top-level items with no parent group, and
+ * a column needs something above it. The four page labels are unchanged.
+ */
+export const megaMenus: MegaMenu[] = [
+  {
+    label: "Animal Feed",
+    href: "/products",
+    eyebrow: "Grain · Poultry · Birds · Ruminant",
+    groups: [
+      {
+        name: "Grain",
+        items: [
+          {
+            label: "Plain Seed 1KG-10KG",
+            href: "/plain-seed-1-10kg",
+            icon: "Wheat",
+            blurb: "Single-variety grain in small packs.",
+          },
+          {
+            label: "Plain Seed 20KG",
+            href: "/plain-seed-20-kg",
+            icon: "Package",
+            blurb: "Wheat, barley, maize and millets by the bag.",
+          },
+        ],
+      },
+      {
+        name: "Poultry",
+        items: [
+          {
+            label: "Poultry Feed",
+            href: "/poultry-feed",
+            icon: "Egg",
+            blurb: "Starter, grower, layer and finisher pellets.",
+          },
+          {
+            label: "Poultry Feeders",
+            href: "/poultry-feeders",
+            icon: "Container",
+            blurb: "Yellow base feeders and red base drinkers.",
+          },
+          {
+            label: "Poultry Medicine",
+            href: "/poultry-medicine",
+            icon: "Pill",
+            blurb: "Treatments and tonics for the flock.",
+          },
+        ],
+      },
+      {
+        name: "Birds",
+        items: [
+          {
+            label: "Bird Seed 1KG-10KG",
+            href: "/bird-seed-1-10kg",
+            icon: "Bird",
+            blurb: "Budgie and companion bird mixes.",
+          },
+          {
+            label: "Bird Seed 20KG",
+            href: "/bird-seed-20kg",
+            icon: "Feather",
+            blurb: "Bulk canary, finch, parrot and pigeon mixes.",
+          },
+          {
+            label: "Passwell, Wambaroo And Vitafarm",
+            href: "/passwell-wambaroo-and-vitafarm",
+            icon: "Award",
+            blurb: "Hand-rearing formulas and specialist nutrition.",
+          },
+        ],
+      },
+      {
+        name: "Ruminant",
+        items: [
+          {
+            label: "Horse",
+            href: "/horse",
+            icon: "PawPrint",
+            blurb: "Mare & foal, pony mixes and performance feeds.",
+          },
+          {
+            label: "Cattle",
+            href: "/cattle",
+            icon: "Beef",
+            blurb: "Stock nuts, sheep nuts and calf weaner pellets.",
+          },
+          {
+            label: "Goat",
+            href: "/goat",
+            icon: "Milk",
+            blurb: "Goat feed and minerals — ask in store.",
+          },
+          {
+            label: "Ruminant Medicine",
+            href: "/ruminant-medicine",
+            icon: "Stethoscope",
+            blurb: "Drenches and animal health lines.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Pet & Garden",
+    href: "/products",
+    eyebrow: "Cat & Dog · Fertilizers · Garden · Others",
+    groups: [
+      {
+        name: "Cat & Dog",
+        items: [
+          {
+            label: "Litter",
+            href: "/litter",
+            icon: "Cat",
+            blurb: "Cat litters from attapulgite to natural.",
+          },
+          {
+            label: "Food",
+            href: "/food",
+            icon: "Bone",
+            blurb: "Cat and dog food across every size.",
+          },
+        ],
+      },
+      {
+        name: "Fertilizers",
+        items: [
+          {
+            label: "Fertilizers 1KG-10KG",
+            href: "/fertilizers-1-10kg",
+            icon: "Droplet",
+            blurb: "Powdered, liquid and pelletised in small packs.",
+          },
+          {
+            label: "Fertilizers 20KG-25KG",
+            href: "/fertilizers-20-25kg",
+            icon: "Droplets",
+            blurb: "Bulk fertiliser for gardens and paddocks.",
+          },
+        ],
+      },
+      {
+        name: "Garden & Farm",
+        items: [
+          {
+            label: "Rabbit Supplies",
+            href: "/rabbit-supplies",
+            icon: "Rabbit",
+            blurb: "Jack Rabbit pellets, pet mix and rabbit hay.",
+          },
+          {
+            label: "Garden Supplies",
+            href: "/garden-supplies",
+            icon: "Flower2",
+            blurb: "Mulch, fertilisers and potting mixes.",
+          },
+          {
+            label: "Hay & Mulch",
+            href: "/hay-mulch",
+            icon: "Sprout",
+            blurb: "Lucerne, oaten and meadow hay, chaff and straw.",
+          },
+          {
+            label: "Laucke Flour",
+            href: "/laucke-flour",
+            icon: "Croissant",
+            blurb: "Bread mixes and baking flours by the bag.",
+          },
+        ],
+      },
+      {
+        name: "Others",
+        items: [
+          {
+            label: "Pig",
+            href: "/pig",
+            icon: "PiggyBank",
+            blurb: "Pig feed and supplies — ask in store.",
+          },
+          {
+            label: "Rat & Mouse",
+            href: "/rat-mouse",
+            icon: "Rat",
+            blurb: "Rat and mouse feed and supplies.",
+          },
+          {
+            label: "Kangaroo",
+            href: "/kangaroo",
+            icon: "Squirrel",
+            blurb: "Kangaroo and native animal feed.",
+          },
+        ],
+      },
+    ],
+  },
+]
+
+/** Every product page, flattened — used by the footer and the nav fallback. */
+export const megaItems: MegaItem[] = megaMenus.flatMap((m) =>
+  m.groups.flatMap((g) => g.items)
+)
+
 export const nav: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
-  {
-    label: "Products",
-    href: "/products",
-    children: [
-      { label: "Plain Seed 20 KG", href: "/plain-seed-20-kg" },
-      { label: "Poultry Feed", href: "/poultry-feed" },
-      { label: "Poultry Feeders", href: "/poultry-feeders" },
-      { label: "Bird Seed 1 – 10KG", href: "/bird-seed-1-10kg" },
-      { label: "Rabbit Supplies", href: "/rabbit-supplies" },
-      { label: "Garden Supplies", href: "/garden-supplies" },
-    ],
-  },
+  ...megaMenus.map((m) => ({
+    label: m.label,
+    href: m.href,
+    children: m.groups.flatMap((g) =>
+      g.items.map((i) => ({ label: i.label, href: i.href }))
+    ),
+  })),
   { label: "Contact Us", href: "/contact-us" },
 ]
 
@@ -231,4 +461,75 @@ export const ranges = [
   "Home-Lay",
   "Hi Lay",
   "Showbird",
+]
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Garden Products — copied verbatim from the store's own archived page:
+ * web.archive.org/web/20250211062735/magillgrainstore.com.au/garden-products/
+ * Wording is the store's, not ours. Do not paraphrase.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+export const gardenIntro = [
+  "You love your backyard garden, don’t you? Sitting on lush green grass, with crisp wind blowing across your face, a warm cup of coffee in your hands and happy sun God shining bright on your head – the feeling is beyond words!",
+  "Having a lush green garden is not as difficult as it sounds. With Magill Grain Store’s assortment of gardening products like fertilizers, manure, potting mixes, and vegetable seeds, you can have the garden of your dreams in least amount of time – we make it that easy for you!",
+]
+
+export const gardenProductsLead =
+  "Whether you are an expert gardener or a novice – we have an ideal product to suit all your requirements and to fit every budget. See the list of our products here. If you need something that’s not listed here, give us a call or visit us in store – we will arrange it for you!"
+
+export const gardenCategories = [
+  {
+    title: "Mulch",
+    body: "We stock mulch hay in our warehouse, making it available round – the – year to you! We provide pea straws, mulch in varying colours as well as sugar cane and Lucerne mulch.",
+  },
+  {
+    title: "Fertilisers",
+    body: "We offer a comprehensive collection of fertilisers – powdered, liquid as well as pelletised – that are safe and user friendly. Renourish your soil with Magill Grain Store’s fertilisers.",
+  },
+  {
+    title: "Potting Mix",
+    body: "Our bouquet of potting mixes includes professional orchid mixes, seed and cutting mixes and eco potting mixes. These are ideal for growing fruits, vegetables, flowers, herbs as well as suitable for garden beds and planter boxes alike.",
+  },
+]
+
+export const gardenClosing =
+  "Choose Magill Grain Store for your garden and landscaping needs and benefit from our superior quality products and exceptional customer service!"
+
+/* Supplier logos carried on the store's own site. */
+export const brands = [
+  { name: "Brunnings", image: "/images/brands/brunnings.png" },
+  { name: "Bushmans Tanks", image: "/images/brands/bushmans-tanks.png" },
+  { name: "Wombaroo", image: "/images/brands/wombaroo.png" },
+  { name: "Laucke", image: "/images/brands/laucke.png" },
+  { name: "Barastoc", image: "/images/brands/barastoc.png" },
+  { name: "Petforce", image: "/images/brands/petforce.png" },
+]
+
+/* Full weekday hours as published on the store's archived contact block. */
+export const fullHours = [
+  { day: "Monday", time: "8:00am – 5:00pm" },
+  { day: "Tuesday", time: "8:00am – 5:00pm" },
+  { day: "Wednesday", time: "8:00am – 5:00pm" },
+  { day: "Thursday", time: "8:00am – 5:00pm" },
+  { day: "Friday", time: "8:00am – 5:00pm" },
+  { day: "Saturday", time: "8:00am – 12:00pm" },
+  { day: "Sunday & Public Holidays", time: "Closed" },
+]
+
+export const storeContact = {
+  addressLines: ["574 Magill Rd", "MAGILL", "SA 5072"],
+  phone: "8331 8159",
+  fax: "83644087",
+  email: "magillgrainstore@gmail.com",
+}
+
+export const socials = [
+  {
+    name: "Facebook",
+    href: "https://www.facebook.com/Magill-Grain-Store-556594704546167/",
+  },
+  {
+    name: "YouTube",
+    href: "https://www.youtube.com/channel/UCTDHhwbYUwjch7QGN_AzWqg",
+  },
 ]

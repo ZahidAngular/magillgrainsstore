@@ -1,15 +1,13 @@
 import Link from "next/link"
 import { Clock, Mail, MapPin, Phone } from "lucide-react"
 import { Logo } from "@/components/Logo"
-import { nav, services, site } from "@/lib/site"
+import { megaMenus, services, site } from "@/lib/site"
 
 export function Footer() {
-  const productLinks = nav.find((n) => n.label === "Products")?.children ?? []
-
   return (
     <footer className="mesh-navy relative text-navy-100">
       <div className="grain-texture absolute inset-0" />
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-2 lg:grid-cols-4">
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-2 lg:grid-cols-5">
         <div>
           <Logo tone="light" />
           <p className="mt-5 text-sm leading-relaxed text-navy-200">
@@ -18,20 +16,36 @@ export function Footer() {
           </p>
         </div>
 
-        <div>
-          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-gold-400">
-            Products
-          </h3>
-          <ul className="mt-5 space-y-3 text-sm">
-            {productLinks.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="transition hover:text-white">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* One column per mega menu, subdivided by the store's own group names,
+            so the footer lists every product page the header does. */}
+        {megaMenus.map((menu) => (
+          <div key={menu.label}>
+            <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-gold-400">
+              {menu.label}
+            </h3>
+            <div className="mt-5 space-y-5">
+              {menu.groups.map((group) => (
+                <div key={group.name}>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-navy-200/70">
+                    {group.name}
+                  </p>
+                  <ul className="mt-2 space-y-2 text-sm">
+                    {group.items.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="transition hover:text-white"
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
 
         <div>
           <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-gold-400">

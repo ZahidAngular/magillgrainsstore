@@ -1,112 +1,137 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { PageHero } from "@/components/PageHero"
-import { Stagger, StaggerItem } from "@/components/motion/Reveal"
+import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal"
+import { catalog } from "@/lib/catalog"
 import { birdSeed, plainSeed, poultryFeed, poultryFeeders } from "@/lib/site"
 
 export const metadata: Metadata = {
   title: "Products",
   description:
-    "Browse our full range: plain seed, poultry feed, poultry feeders, bird seed, rabbit supplies and garden supplies.",
+    "Grain, poultry, birds, cat & dog, ruminant, rabbit, garden, fertilizers, hay & mulch, Laucke flour and more.",
 }
 
-const categories = [
+type Row = { title: string; href: string; count: number }
+
+/**
+ * The index is grouped exactly like the store's menu. The four ranges that
+ * predate the catalog file still live in lib/site.ts, so they are folded in by
+ * hand; everything else is read straight off the catalog.
+ */
+const fromCatalog = (slug: string): Row => {
+  const c = catalog.find((x) => x.slug === slug)
+  if (!c) throw new Error(`No catalog entry for ${slug}`)
+  return { title: c.title, href: `/${c.slug}`, count: c.products.length }
+}
+
+const groups: { name: string; rows: Row[] }[] = [
   {
-    title: "Plain Seed 20 KG",
-    href: "/plain-seed-20-kg",
-    count: plainSeed.length,
-    image: "/images/site/animal-feed.jpg",
-    blurb: "Wheat, barley, maize, millets, sunflower and more — bagged at 20KG.",
+    name: "Grain",
+    rows: [
+      fromCatalog("plain-seed-1-10kg"),
+      { title: "Plain Seed 20KG", href: "/plain-seed-20-kg", count: plainSeed.length },
+    ],
   },
   {
-    title: "Poultry Feed",
-    href: "/poultry-feed",
-    count: poultryFeed.length,
-    image: "/images/products/home-lay-pellet.jpg",
-    blurb: "Starters, growers, layers and finishers for every stage of the flock.",
+    name: "Poultry",
+    rows: [
+      { title: "Poultry Feed", href: "/poultry-feed", count: poultryFeed.length },
+      { title: "Poultry Feeders", href: "/poultry-feeders", count: poultryFeeders.length },
+      fromCatalog("poultry-medicine"),
+    ],
   },
   {
-    title: "Poultry Feeders",
-    href: "/poultry-feeders",
-    count: poultryFeeders.length,
-    image: "/images/site/poultry-feeders.jpg",
-    blurb: "Yellow base feeders and red base drinkers from 1L to 12KG.",
+    name: "Birds",
+    rows: [
+      { title: "Bird Seed 1KG-10KG", href: "/bird-seed-1-10kg", count: birdSeed.length },
+      fromCatalog("bird-seed-20kg"),
+      fromCatalog("passwell-wambaroo-and-vitafarm"),
+    ],
   },
   {
-    title: "Bird Seed 1 – 10KG",
-    href: "/bird-seed-1-10kg",
-    count: birdSeed.length,
-    image: "/images/site/birds.jpg",
-    blurb: "Small-pack budgie and companion bird mixes.",
+    name: "Cat & Dog",
+    rows: [fromCatalog("litter"), fromCatalog("food")],
   },
   {
-    title: "Rabbit Supplies",
-    href: "/rabbit-supplies",
-    count: 0,
-    image: "/images/site/cats.jpg",
-    blurb: "Pellets, hay and bedding — call the store for current stock.",
+    name: "Ruminant",
+    rows: [
+      fromCatalog("horse"),
+      fromCatalog("cattle"),
+      fromCatalog("goat"),
+      fromCatalog("ruminant-medicine"),
+    ],
   },
   {
-    title: "Garden Supplies",
-    href: "/garden-supplies",
-    count: 0,
-    image: "/images/site/dog-breeds.jpg",
-    blurb: "Fertilizers, hay and mulch for the home garden and small acreage.",
+    name: "Fertilizers",
+    rows: [fromCatalog("fertilizers-1-10kg"), fromCatalog("fertilizers-20-25kg")],
+  },
+  {
+    name: "Others",
+    rows: [
+      fromCatalog("rabbit-supplies"),
+      { title: "Garden Products", href: "/garden-supplies", count: 0 },
+      fromCatalog("hay-mulch"),
+      fromCatalog("laucke-flour"),
+      fromCatalog("pig"),
+      fromCatalog("rat-mouse"),
+      fromCatalog("kangaroo"),
+    ],
   },
 ]
 
+const total = groups.reduce(
+  (n, g) => n + g.rows.reduce((m, r) => m + r.count, 0),
+  0
+)
+
 export default function ProductsPage() {
   return (
-    <main>
+    <main className="bg-surface">
       <PageHero
         eyebrow="Products"
         title="Our Product Range"
-        description="Grains, feed, feeders and supplies stocked daily at 574 Magill Road. Prices are listed per bag or per unit."
+        description={`${total} lines across every range we carry, stocked at 574 Magill Road. Prices are per bag or per unit.`}
       />
 
-      <section className="bg-surface-2 py-20 md:py-28">
-        <Stagger className="mx-auto grid max-w-7xl gap-6 px-6 md:grid-cols-2 lg:grid-cols-3">
-          {categories.map((cat) => (
-            <StaggerItem key={cat.href}>
-              <Link
-                href={cat.href}
-                className="group block h-full overflow-hidden rounded-2xl border border-line bg-surface-2 transition duration-500 hover:-translate-y-2 hover:border-gold-400/60 hover:shadow-[0_30px_70px_-38px_rgba(0,19,119,0.6)]"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-surface-3">
-                  <Image
-                    src={cat.image}
-                    alt={cat.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover transition duration-[900ms] ease-out group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-navy-950/0 transition duration-500 group-hover:bg-navy-950/20" />
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <h2 className="text-lg font-extrabold text-ink">
-                      {cat.title}
-                    </h2>
-                    {cat.count > 0 && (
-                      <span className="rounded-full bg-surface-3 px-3 py-1 text-xs font-bold text-ink">
-                        {cat.count} items
+      <section className="bg-surface py-16 md:py-24">
+        <div className="mx-auto max-w-7xl space-y-16 px-6">
+          {groups.map((group) => (
+            <div key={group.name}>
+              <Reveal from="up">
+                <span className="flex items-center gap-3">
+                  <span className="h-px w-10 rule-gold" />
+                  <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-accent-ink">
+                    {group.name}
+                  </h2>
+                </span>
+              </Reveal>
+
+              <Stagger className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {group.rows.map((row) => (
+                  <StaggerItem key={row.href}>
+                    <Link
+                      href={row.href}
+                      className="group flex h-full items-center justify-between gap-4 rounded-2xl border border-line bg-surface-2 px-6 py-6 transition duration-500 hover:-translate-y-1 hover:border-gold-400 hover:shadow-[0_24px_60px_-40px_rgba(0,19,119,0.55)]"
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-[17px] font-bold text-ink">
+                          {row.title}
+                        </span>
+                        <span className="mt-1 block text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                          {row.count > 0
+                            ? `${row.count} ${row.count === 1 ? "line" : "lines"}`
+                            : "Ask in store"}
+                        </span>
                       </span>
-                    )}
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-ink-body">
-                    {cat.blurb}
-                  </p>
-                  <span className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.14em] text-ink-muted transition group-hover:text-ink">
-                    View range
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </div>
-              </Link>
-            </StaggerItem>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-hover:translate-x-1 group-hover:text-accent-ink" />
+                    </Link>
+                  </StaggerItem>
+                ))}
+              </Stagger>
+            </div>
           ))}
-        </Stagger>
+        </div>
       </section>
     </main>
   )
