@@ -26,6 +26,9 @@ import {
 
 const PAGE_SIZE = 10
 
+/** Which products the list shows. "all" covers live and hidden together. */
+type StatusFilter = "all" | "live" | "hidden"
+
 export default function DashboardPage() {
   const router = useRouter()
 
@@ -38,6 +41,8 @@ export default function DashboardPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("")
+  // "all" is the default so hiding a product never makes it vanish from this list.
+  const [status, setStatus] = useState<StatusFilter>("all")
   const [categories, setCategories] = useState<string[]>([])
   const [result, setResult] = useState<PagedResult<Product> | null>(null)
   const [loading, setLoading] = useState(true)
@@ -71,6 +76,9 @@ export default function DashboardPage() {
             pageSize: PAGE_SIZE,
             search: search || undefined,
             category: category || undefined,
+            // "live" sends neither flag — that is already the API's default.
+            includeHidden: status === "all" || undefined,
+            isActive: status === "hidden" ? false : undefined,
           }),
           api.categories(),
         ])
@@ -89,7 +97,7 @@ export default function DashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [user, page, search, category, reloadKey])
+  }, [user, page, search, category, status, reloadKey])
 
   const reload = () => {
     setLoading(true)
@@ -191,6 +199,20 @@ export default function DashboardPage() {
                 {c}
               </option>
             ))}
+          </select>
+
+          <select
+            value={status}
+            onChange={(e) => {
+              setPage(1)
+              setLoading(true)
+              setStatus(e.target.value as StatusFilter)
+            }}
+            className="rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink outline-none transition focus:border-gold-400"
+          >
+            <option value="all">All statuses</option>
+            <option value="live">Live only</option>
+            <option value="hidden">Hidden only</option>
           </select>
 
           <button

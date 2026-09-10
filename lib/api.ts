@@ -232,6 +232,8 @@ export const api = {
     category?: string
     search?: string
     isActive?: boolean
+    /** Owner-only: returns hidden products alongside the live ones. */
+    includeHidden?: boolean
     page?: number
     pageSize?: number
   }) {
@@ -239,6 +241,7 @@ export const api = {
     query.set("siteName", params.siteName ?? SITE_NAME)
     if (params.category) query.set("category", params.category)
     if (params.search) query.set("search", params.search)
+    if (params.includeHidden) query.set("includeHidden", "true")
     if (params.isActive !== undefined) query.set("isActive", String(params.isActive))
     query.set("page", String(params.page ?? 1))
     query.set("pageSize", String(params.pageSize ?? 20))
