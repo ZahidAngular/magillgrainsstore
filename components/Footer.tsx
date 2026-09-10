@@ -11,8 +11,9 @@ export function Footer() {
         <div>
           <Logo tone="light" />
           <p className="mt-5 text-sm leading-relaxed text-navy-200">
-            {site.tagline}. Quality poultry, bird grains and animal feed supplied
-            to South Australian farms, breeders and backyard flocks.
+            {site.tagline}. Quality Poultry, Bird Seeds, Grains and Premium
+            Animal feed supplied to South Australian farms, breeders and
+            backyard flocks.
           </p>
         </div>
 

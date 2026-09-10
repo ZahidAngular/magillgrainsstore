@@ -2,9 +2,8 @@
 
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Phone, Wheat } from "lucide-react"
-import type { Product } from "@/lib/site"
-import { site } from "@/lib/site"
+import { Wheat } from "lucide-react"
+import type { Product } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 const columnClasses = {
@@ -23,7 +22,7 @@ export function ProductGrid({
     <div className={cn("grid gap-6", columnClasses[columns])}>
       {products.map((product, i) => (
         <motion.article
-          key={product.name}
+          key={product.productId}
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
@@ -37,9 +36,9 @@ export function ProductGrid({
           {/* Deliberately light in both themes: every packshot is photographed
               on white, so a dark tile would ring each bag with a white halo. */}
           <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-bone-100 to-white">
-            {product.image ? (
+            {product.imageUrl ? (
               <Image
-                src={product.image}
+                src={product.imageUrl}
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1280px) 33vw, 25vw"
@@ -54,20 +53,49 @@ export function ProductGrid({
             )}
           </div>
 
-          <div className="flex flex-1 flex-col gap-3 border-t border-line p-6">
+          <div className="flex flex-1 flex-col gap-4 border-t border-line p-6">
             <h3 className="text-base font-bold leading-snug text-ink">
               {product.name}
             </h3>
-            <p className="mt-auto text-[15px] font-extrabold leading-snug text-accent-ink">
-              {product.price}
-            </p>
-            <a
-              href={site.phoneHref}
-              className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.14em] text-ink-muted transition hover:text-ink"
-            >
-              <Phone className="h-3.5 w-3.5" />
-              Order by phone
-            </a>
+
+            {product.description && (
+              <p className="text-[13px] leading-relaxed text-ink-body">
+                {product.description}
+              </p>
+            )}
+
+            {/*
+             * Priced pack sizes read as a small list — the store sells the same
+             * product in several bags at different prices. Lines the store has
+             * never priced fall back to their own wording instead.
+             *
+             * Deliberately top-aligned: the list length varies from one to five
+             * rows, and pushing it to the bottom of an equal-height card left a
+             * gap between the name and its prices on the shorter ones.
+             */}
+            <div>
+              {product.sizes.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {product.sizes.map((s) => (
+                    <li
+                      key={s.productSizeId ?? `${s.size}-${s.priceType}`}
+                      className="flex items-baseline justify-between gap-3 text-[14px]"
+                    >
+                      <span className="font-semibold text-ink-body">
+                        {s.size || "Each"}
+                      </span>
+                      <span className="font-extrabold text-accent-ink">
+                        ${s.price.toFixed(2)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[15px] font-extrabold leading-snug text-accent-ink">
+                  {product.priceNote || "Call for price"}
+                </p>
+              )}
+            </div>
           </div>
         </motion.article>
       ))}

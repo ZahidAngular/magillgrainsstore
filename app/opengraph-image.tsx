@@ -2,7 +2,8 @@ import { ImageResponse } from "next/og"
 
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
-export const alt = "Magill Grain Store — Quality Poultry, Bird Grains and Animal Feed"
+export const alt =
+  "Magill Grain Store — Quality Poultry, Bird Seeds, Grains and Premium Animal feed"
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -53,18 +54,20 @@ export default function OpengraphImage() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 68, fontWeight: 800, lineHeight: 1.08 }}>
-            Quality Poultry, Bird Grains
+          {/* Sized down from 68: the longer headline overflows 1200px wide at
+              the old size. */}
+          <div style={{ fontSize: 56, fontWeight: 800, lineHeight: 1.1 }}>
+            Quality Poultry, Bird Seeds,
           </div>
           <div
             style={{
-              fontSize: 68,
+              fontSize: 56,
               fontWeight: 800,
-              lineHeight: 1.08,
+              lineHeight: 1.1,
               color: "#f8c53c",
             }}
           >
-            and Animal Feed
+            Grains and Premium Animal feed
           </div>
         </div>
 

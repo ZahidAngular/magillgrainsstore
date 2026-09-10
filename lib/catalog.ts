@@ -9,6 +9,10 @@
  *   • Horse and Cattle prices read "$000 each" — the store never filled them in.
  *   • Cattle repeats Stock Nuts / Sheep Nuts / Eve & Lamb Nuts.
  *   • Spellings such as "Guniea Pig", "Medow Hay", "Kitter Litter" are theirs.
+ *
+ * One later edit by hand: the plain-seed-1-10kg entry was dropped at the
+ * client's request. It carried no products on the source site, and its menu
+ * slot now points at Plain Seed 20KG instead.
  * ──────────────────────────────────────────────────────────────────────── */
 
 import type { Product } from "@/lib/site"
@@ -22,13 +26,6 @@ export type Category = {
 }
 
 export const catalog: Category[] = [
-  {
-    slug: "plain-seed-1-10kg",
-    title: "Plain Seed 1KG-10KG",
-    group: "Grain",
-    intro: [],
-    products: [],
-  },
   {
     slug: "poultry-medicine",
     title: "Poultry Medicine",

@@ -1,13 +1,14 @@
 import type { Metadata } from "next"
 import { Instrument_Serif, Inter_Tight } from "next/font/google"
 import "./globals.css"
-import { SmoothScroll } from "@/components/SmoothScroll"
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
-import { ScrollProgress } from "@/components/motion/ScrollProgress"
-import { ScrollToTop } from "@/components/motion/ScrollToTop"
 import { themeInitScript } from "@/components/ThemeToggle"
 import { site } from "@/lib/site"
+
+/**
+ * Document shell only — fonts, theme boot and metadata. The public site's
+ * header, footer and scroll furniture live in app/(site)/layout.tsx so the
+ * sign-in and dashboard screens can render without them.
+ */
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -28,7 +29,7 @@ const description = `${site.tagline}. Grains, bird feed, animal feed, fertilizer
 export const metadata: Metadata = {
   metadataBase: new URL("https://magillgrainsstore.com.au"),
   title: {
-    default: `${site.name} — Quality Poultry, Bird Grains and Animal Feed`,
+    default: `${site.name} — Quality Poultry, Bird Seeds, Grains and Premium Animal feed`,
     template: `%s | ${site.name}`,
   },
   description,
@@ -36,42 +37,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_AU",
     siteName: site.name,
-    title: `${site.name} — Quality Poultry, Bird Grains and Animal Feed`,
+    title: `${site.name} — Quality Poultry, Bird Seeds, Grains and Premium Animal feed`,
     description,
   },
   twitter: { card: "summary_large_image" },
-}
-
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  name: site.name,
-  description,
-  telephone: site.phone,
-  email: site.email,
-  url: "https://magillgrainsstore.com.au",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "574 Magill Road",
-    addressLocality: "Magill",
-    addressRegion: "SA",
-    postalCode: "5072",
-    addressCountry: "AU",
-  },
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      opens: "08:30",
-      closes: "17:00",
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: "Saturday",
-      opens: "08:00",
-      closes: "12:00",
-    },
-  ],
 }
 
 export default function RootLayout({
@@ -86,25 +55,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="bg-surface font-sans text-ink-body">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
-        <a
-          href="#content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-lg focus:bg-navy-900 focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
-        >
-          Skip to content
-        </a>
-        <SmoothScroll>
-          <ScrollProgress />
-          <Header />
-          <div id="content">{children}</div>
-          <Footer />
-          <ScrollToTop />
-        </SmoothScroll>
-      </body>
+      <body className="bg-surface font-sans text-ink-body">{children}</body>
     </html>
   )
 }

@@ -15,6 +15,7 @@ import {
 import { Counter } from "@/components/Counter"
 import { Monogram } from "@/components/Monogram"
 import { ProductGrid } from "@/components/ProductGrid"
+import type { Product as ApiProduct } from "@/lib/api"
 import { Line } from "@/components/motion/LineReveal"
 import { Magnetic } from "@/components/motion/Magnetic"
 import { Marquee } from "@/components/motion/Marquee"
@@ -22,7 +23,6 @@ import { Parallax } from "@/components/motion/Parallax"
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal"
 import { ScrollHighlight } from "@/components/motion/ScrollHighlight"
 import {
-  featuredProducts,
   offerings,
   pillars,
   ranges,
@@ -40,7 +40,7 @@ const badges = [
   { icon: Leaf, title: "Farm Direct", body: "Straight from expert Australian growers." },
 ]
 
-export default function Home() {
+export function HomeContent({ featured }: { featured: ApiProduct[] }) {
   return (
     <main className="bg-surface">
       <Hero />
@@ -98,7 +98,7 @@ export default function Home() {
             </div>
           </Reveal>
 
-          <ProductGrid products={featuredProducts} columns="two" />
+          <ProductGrid products={featured} columns="two" />
         </div>
       </section>
 
@@ -450,11 +450,13 @@ function Hero() {
           </motion.div>
 
           <h1 className="display mt-9 text-[3.1rem] text-white sm:text-[4.4rem] lg:text-[5.6rem]">
-            <Line index={0}>Quality poultry,</Line>
+            <Line index={0}>Quality Poultry,</Line>
             <Line index={1}>
-              <span className="display-italic text-gold-400">bird grains</span>
+              <span className="display-italic text-gold-400">
+                Bird Seeds, Grains
+              </span>
             </Line>
-            <Line index={2}>and animal feed</Line>
+            <Line index={2}>and Premium Animal feed</Line>
           </h1>
 
           <motion.p
