@@ -67,7 +67,12 @@ export function ProductGrid({
             {/*
              * Priced pack sizes read as a small list — the store sells the same
              * product in several bags at different prices. Lines the store has
-             * never priced fall back to their own wording instead.
+             * never priced show their own wording instead.
+             *
+             * Nothing is invented to fill a gap: a size left blank in the price
+             * list stays blank, and a product with neither sizes nor wording
+             * shows no price line at all. The site has to read exactly like the
+             * store's spreadsheets.
              *
              * Deliberately top-aligned: the list length varies from one to five
              * rows, and pushing it to the bottom of an equal-height card left a
@@ -82,7 +87,7 @@ export function ProductGrid({
                       className="flex items-baseline justify-between gap-3 text-[14px]"
                     >
                       <span className="font-semibold text-ink-body">
-                        {s.size || "Each"}
+                        {s.size}
                       </span>
                       <span className="font-extrabold text-accent-ink">
                         ${s.price.toFixed(2)}
@@ -90,11 +95,11 @@ export function ProductGrid({
                     </li>
                   ))}
                 </ul>
-              ) : (
+              ) : product.priceNote ? (
                 <p className="text-[15px] font-extrabold leading-snug text-accent-ink">
-                  {product.priceNote || "Call for price"}
+                  {product.priceNote}
                 </p>
-              )}
+              ) : null}
             </div>
           </div>
         </motion.article>
