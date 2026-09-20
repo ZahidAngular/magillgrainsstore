@@ -175,3 +175,21 @@ main {
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Chrome paints its own near-white background over autofilled inputs, which
+ * turned the sign-in card's dark fields white — pale text on pale fill, and
+ * the lock and eye icons disappeared into it. There is no property to switch
+ * that off, so the fill is covered with an inset shadow and the text colour is
+ * forced back.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff;
+  caret-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px var(--color-navy-950) inset;
+  box-shadow: 0 0 0 1000px var(--color-navy-950) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
