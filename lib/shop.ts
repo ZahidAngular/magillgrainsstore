@@ -27,7 +27,10 @@ type Paged<T> = { items: T[]; totalCount: number }
 
 async function get<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}/api${path}`, { cache: "no-store" })
+    // A static export is baked once at build time, where "no-store" would make
+    // the page dynamic and fail; everywhere else, always read fresh.
+    const cache = process.env.STATIC_EXPORT === "1" ? "force-cache" : "no-store"
+    const res = await fetch(`${API_BASE}/api${path}`, { cache })
     if (!res.ok) return null
     const body = (await res.json()) as ApiResponse<T>
     return body.data
@@ -82,4 +85,50 @@ export function priceLines(product: Product): string[] {
       s.size ? `${s.size} — $${s.price.toFixed(2)}` : `$${s.price.toFixed(2)}`
     )
   return product.priceNote ? [product.priceNote] : []
+}
+
+const SITE_URL = "https://magillgrainstore.com.au"
+
+/**
+ * schema.org JSON-LD for a category page's products — built entirely from
+ * fields the dashboard already saves (name, description, image, sizes), so
+ * there's nothing new to fill in and nothing to keep in sync by hand.
+ */
+export function categoryProductListSchema(products: Product[], category: string) {
+  const pageUrl = `${SITE_URL}/shop/${toSlug(category)}`
+  const priced = products.filter((p) => p.sizes.some((s) => s.price > 0))
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${category} at Magill Grain Store`,
+    url: pageUrl,
+    numberOfItems: priced.length,
+    itemListElement: priced.map((product, i) => {
+      const prices = product.sizes.map((s) => s.price).filter((p) => p > 0)
+      const lowPrice = Math.min(...prices)
+      const highPrice = Math.max(...prices)
+
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        item: {
+          "@type": "Product",
+          name: product.name,
+          description: product.description || `${product.name} — ${category} at Magill Grain Store.`,
+          category: product.category,
+          ...(product.imageUrl ? { image: product.imageUrl } : {}),
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: "AUD",
+            lowPrice: lowPrice.toFixed(2),
+            highPrice: highPrice.toFixed(2),
+            offerCount: prices.length,
+            availability: "https://schema.org/InStock",
+            url: pageUrl,
+          },
+        },
+      }
+    }),
+  }
 }

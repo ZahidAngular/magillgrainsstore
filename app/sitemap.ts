@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next"
 import { nav } from "@/lib/site"
+import { productPagePaths } from "@/lib/productPages"
 
-const BASE = "https://magillgrainsstore.com.au"
+export const dynamic = "force-static"
+
+const BASE = "https://magillgrainstore.com.au"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths = new Set<string>(["/"])
@@ -12,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       paths.add(child.href)
     }
   }
+  for (const path of productPagePaths) paths.add(path)
 
   return [...paths].map((path) => ({
     url: `${BASE}${path === "/" ? "" : path}`,

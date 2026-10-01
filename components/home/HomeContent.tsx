@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   ArrowRight,
   BadgeCheck,
@@ -15,7 +15,8 @@ import {
 import { Counter } from "@/components/Counter"
 import { Monogram } from "@/components/Monogram"
 import { ProductGrid } from "@/components/ProductGrid"
-import type { Product as ApiProduct } from "@/lib/api"
+import { ProductGridSkeleton } from "@/components/ProductGridSkeleton"
+import { getAllProducts, type Product } from "@/lib/shop"
 import { Line } from "@/components/motion/LineReveal"
 import { Magnetic } from "@/components/motion/Magnetic"
 import { Marquee } from "@/components/motion/Marquee"
@@ -40,7 +41,22 @@ const badges = [
   { icon: Leaf, title: "Farm Direct", body: "Straight from expert Australian growers." },
 ]
 
-export function HomeContent({ featured }: { featured: ApiProduct[] }) {
+export function HomeContent() {
+  const [featured, setFeatured] = useState<Product[] | null>(null)
+
+  // "Featured" is simply the first few products the store has ordered to the
+  // top of the catalogue — sortOrder is editable in the dashboard. Fetched in
+  // the browser so a reorder shows up on the next visit, not the next deploy.
+  useEffect(() => {
+    let active = true
+    getAllProducts().then((products) => {
+      if (active) setFeatured(products.slice(0, 6))
+    })
+    return () => {
+      active = false
+    }
+  }, [])
+
   return (
     <main className="bg-surface">
       <Hero />
@@ -98,7 +114,11 @@ export function HomeContent({ featured }: { featured: ApiProduct[] }) {
             </div>
           </Reveal>
 
-          <ProductGrid products={featured} columns="two" />
+          {featured === null ? (
+            <ProductGridSkeleton count={6} />
+          ) : (
+            <ProductGrid products={featured} columns="two" />
+          )}
         </div>
       </section>
 

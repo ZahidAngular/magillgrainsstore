@@ -9,10 +9,13 @@ export function PageHero({
   eyebrow,
   title,
   description,
+  parent,
 }: {
   eyebrow?: string
   title: string
   description?: string
+  /** An extra crumb between Home and this page, e.g. the category a product sits in. */
+  parent?: { label: string; href: string }
 }) {
   return (
     <section className="mesh-navy relative overflow-hidden">
@@ -41,6 +44,14 @@ export function PageHero({
             Home
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
+          {parent && (
+            <>
+              <Link href={parent.href} className="transition hover:text-gold-400">
+                {parent.label}
+              </Link>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </>
+          )}
           <span className="text-gold-400">{eyebrow ?? title}</span>
         </motion.nav>
 

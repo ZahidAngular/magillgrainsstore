@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Trash2, X } from "lucide-react"
+import { useRef, useState } from "react"
+import { ImagePlus, Plus, Trash2, X } from "lucide-react"
 import type { Product, ProductInput } from "@/lib/api"
+import { uploadProductImage } from "@/lib/cloudinary"
+import { compressImage } from "@/lib/compressImage"
 import { cn } from "@/lib/utils"
 
 type SizeRow = { size: string; priceType: string; price: string }
@@ -35,6 +37,12 @@ export function ProductForm({
   const [category, setCategory] = useState(product?.category ?? "")
   const [name, setName] = useState(product?.name ?? "")
   const [description, setDescription] = useState(product?.description ?? "")
+  const [image, setImage] = useState(product?.image ?? null)
+  const [imagePreview, setImagePreview] = useState(product?.imageUrl ?? null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [compressing, setCompressing] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isActive, setIsActive] = useState(product?.isActive ?? true)
   const [sortOrder, setSortOrder] = useState(String(product?.sortOrder ?? 0))
   const [rows, setRows] = useState<SizeRow[]>(
@@ -52,9 +60,43 @@ export function ProductForm({
   const setRow = (i: number, patch: Partial<SizeRow>) =>
     setRows((prev) => prev.map((r, n) => (n === i ? { ...r, ...patch } : r)))
 
+  async function pickImage(file: File | undefined) {
+    if (!file) return
+    setImagePreview(URL.createObjectURL(file))
+    setCompressing(true)
+    try {
+      const compressed = await compressImage(file)
+      setImageFile(compressed)
+    } catch {
+      setImageFile(file) // upload will just take longer if compression itself failed
+    } finally {
+      setCompressing(false)
+    }
+  }
+
+  function removeImage() {
+    setImage(null)
+    setImageFile(null)
+    setImagePreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    let finalImage = image
+    if (imageFile) {
+      setUploading(true)
+      try {
+        finalImage = await uploadProductImage(imageFile)
+      } catch (err) {
+        setUploading(false)
+        setError(err instanceof Error ? err.message : "Image upload failed.")
+        return
+      }
+      setUploading(false)
+    }
 
     const sizes = rows
       .filter((r) => r.size.trim() !== "" || r.price.trim() !== "")
@@ -76,6 +118,7 @@ export function ProductForm({
         category: category.trim(),
         name: name.trim(),
         description: description.trim() || null,
+        image: finalImage,
         isActive,
         sortOrder: Number(sortOrder) || 0,
         sizes,
@@ -88,7 +131,7 @@ export function ProductForm({
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-navy-950/70 p-4 backdrop-blur-sm">
-      <div className="my-auto w-full max-w-3xl rounded-[1.5rem] border border-line bg-surface shadow-2xl">
+      <div className="my-auto w-full max-w-6xl rounded-[1.5rem] border border-line bg-surface shadow-2xl">
         {/* header */}
         <div className="flex items-start justify-between gap-6 border-b border-line px-8 py-6 md:px-10">
           <div>
@@ -231,27 +274,66 @@ export function ProductForm({
           </div>
 
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
-            <label className="block">
-              <span className={LABEL}>Sort order</span>
-              <input
-                type="number"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-                className={cn(FIELD)}
-              />
-            </label>
+            <div className="flex flex-col gap-5">
+              <label className="block">
+                <span className={LABEL}>Sort order</span>
+                <input
+                  type="number"
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className={cn(FIELD)}
+                />
+              </label>
 
-            <label className="flex cursor-pointer items-center gap-3 self-end rounded-xl border border-line bg-surface-2 px-4 py-3.5">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="h-4 w-4 accent-gold-500"
-              />
-              <span className="text-[15px] font-semibold text-ink">
-                Show on the website
-              </span>
-            </label>
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-line bg-surface-2 px-4 py-3.5">
+                <input
+                  type="checkbox"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  className="h-4 w-4 accent-gold-500"
+                />
+                <span className="text-[15px] font-semibold text-ink">
+                  Show on the website
+                </span>
+              </label>
+            </div>
+
+            {/* image — one photo per product, uploaded straight to Cloudinary */}
+            <div className="flex items-center gap-5 rounded-xl border border-line bg-surface-2 p-4">
+              <div className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-surface">
+                {imagePreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <ImagePlus className="h-7 w-7 text-ink-muted" />
+                )}
+              </div>
+              <div className="flex flex-col items-start gap-1.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => pickImage(e.target.files?.[0])}
+                  className="hidden"
+                  id="mgs-product-image"
+                />
+                <label
+                  htmlFor="mgs-product-image"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line bg-surface px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-ink transition hover:border-gold-400"
+                >
+                  {imagePreview ? "Replace image" : "Upload image"}
+                </label>
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="text-left text-[12px] font-semibold text-ink-muted transition hover:text-red-500"
+                  >
+                    Remove image
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {error && (
@@ -266,10 +348,18 @@ export function ProductForm({
           <div className="mt-8 flex flex-wrap gap-3 border-t border-line pt-6">
             <button
               type="submit"
-              disabled={busy}
+              disabled={busy || uploading || compressing}
               className="rounded-full bg-navy-900 px-8 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-navy-700 disabled:opacity-60"
             >
-              {busy ? "Saving…" : product ? "Save changes" : "Create product"}
+              {compressing
+                ? "Compressing image…"
+                : uploading
+                  ? "Uploading image…"
+                  : busy
+                    ? "Saving…"
+                    : product
+                      ? "Save changes"
+                      : "Create product"}
             </button>
             <button
               type="button"

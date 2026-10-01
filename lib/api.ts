@@ -15,6 +15,8 @@ export const SITE_NAME =
 
 const TOKEN_KEY = "mgs.token"
 const USER_KEY = "mgs.user"
+const REFRESH_KEY = "mgs.refresh"
+const EXPIRES_KEY = "mgs.expiresAt"
 
 export type ApiResponse<T> = {
   success: boolean
@@ -70,6 +72,7 @@ export type ProductInput = {
   category: string
   name: string
   description?: string | null
+  image?: string | null
   priceNote?: string | null
   isActive: boolean
   sortOrder: number
@@ -88,6 +91,24 @@ export const auth = {
       return null
     }
   },
+  get refreshToken() {
+    if (typeof window === "undefined") return null
+    try {
+      return localStorage.getItem(REFRESH_KEY)
+    } catch {
+      return null
+    }
+  },
+  /** Epoch ms the access token stops being valid, or null if unknown. */
+  get expiresAt(): number | null {
+    if (typeof window === "undefined") return null
+    try {
+      const raw = localStorage.getItem(EXPIRES_KEY)
+      return raw ? Number(raw) : null
+    } catch {
+      return null
+    }
+  },
   get user(): AuthUser | null {
     if (typeof window === "undefined") return null
     try {
@@ -97,10 +118,17 @@ export const auth = {
       return null
     }
   },
-  save(token: string, user: AuthUser) {
+  save(
+    token: string,
+    user: AuthUser,
+    refreshToken?: string,
+    expiresAt?: string
+  ) {
     try {
       localStorage.setItem(TOKEN_KEY, token)
       localStorage.setItem(USER_KEY, JSON.stringify(user))
+      if (refreshToken) localStorage.setItem(REFRESH_KEY, refreshToken)
+      if (expiresAt) localStorage.setItem(EXPIRES_KEY, String(Date.parse(expiresAt)))
     } catch {
       /* storage unavailable — the session simply will not persist */
     }
@@ -110,6 +138,8 @@ export const auth = {
     try {
       localStorage.removeItem(TOKEN_KEY)
       localStorage.removeItem(USER_KEY)
+      localStorage.removeItem(REFRESH_KEY)
+      localStorage.removeItem(EXPIRES_KEY)
     } catch {
       /* nothing to clear */
     }
@@ -177,22 +207,93 @@ export class ApiError extends Error {
   }
 }
 
+type AuthPayload = {
+  accessToken: string
+  accessTokenExpiresAt: string
+  refreshToken: string
+  user: AuthUser
+}
+
+/*
+ * A 60-minute access token would otherwise sign the store owner out mid-shift
+ * — refreshed quietly in the background instead, using the 7-day refresh
+ * token the login already issued. Only an actual "Sign out" click, or that
+ * refresh token itself expiring from a week of inactivity, ends the session.
+ *
+ * Concurrent requests share one in-flight refresh rather than each racing to
+ * rotate the (single-use) refresh token themselves.
+ */
+let refreshing: Promise<boolean> | null = null
+
+async function doRefresh(): Promise<boolean> {
+  const refreshToken = auth.refreshToken
+  if (!refreshToken) return false
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+      cache: "no-store",
+    })
+    if (!res.ok) return false
+
+    const payload = (await res.json()) as ApiResponse<AuthPayload>
+    if (!payload.data) return false
+
+    auth.save(
+      payload.data.accessToken,
+      payload.data.user,
+      payload.data.refreshToken,
+      payload.data.accessTokenExpiresAt
+    )
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Refreshes now if the access token is missing, expired, or about to be. */
+async function ensureFreshToken() {
+  if (!auth.refreshToken) return
+  const expiresAt = auth.expiresAt
+  const needsRefresh = !auth.token || expiresAt === null || expiresAt - Date.now() < 30_000
+  if (!needsRefresh) return
+
+  refreshing ??= doRefresh().finally(() => {
+    refreshing = null
+  })
+  const ok = await refreshing
+  if (!ok) auth.clear() // refresh token itself expired or was revoked — a real sign-out
+}
+
 async function request<T>(
   path: string,
   options: { method?: string; body?: unknown; auth?: boolean } = {}
 ): Promise<T> {
   const { method = "GET", body, auth: withAuth = true } = options
-  const token = withAuth ? auth.token : null
 
-  const res = await fetch(`${API_BASE}/api${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    cache: "no-store",
-  })
+  if (withAuth) await ensureFreshToken()
+
+  const send = () =>
+    fetch(`${API_BASE}/api${path}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(withAuth && auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      cache: "no-store",
+    })
+
+  let res = await send()
+
+  // Belt-and-braces: a token that expired between ensureFreshToken() and the
+  // request landing (clock skew, a slow request) gets one retry after refresh.
+  if (res.status === 401 && withAuth && auth.refreshToken) {
+    const ok = await doRefresh()
+    if (ok) res = await send()
+  }
 
   let payload: ApiResponse<T> | null = null
   try {
@@ -215,15 +316,24 @@ async function request<T>(
 
 export const api = {
   async login(email: string, password: string) {
-    const data = await request<{ accessToken: string; user: AuthUser }>(
-      "/auth/login",
-      { method: "POST", body: { email, password }, auth: false }
-    )
-    auth.save(data.accessToken, data.user)
+    const data = await request<AuthPayload>("/auth/login", {
+      method: "POST",
+      body: { email, password },
+      auth: false,
+    })
+    auth.save(data.accessToken, data.user, data.refreshToken, data.accessTokenExpiresAt)
     return data.user
   },
 
-  logout() {
+  async logout() {
+    // Revokes the refresh token server-side so it can't quietly renew the
+    // session again — best-effort, since the whole point of "sign out" is to
+    // end the session locally even if the API call itself fails.
+    try {
+      await request<string>("/auth/logout", { method: "POST" })
+    } catch {
+      /* still signing out locally either way */
+    }
     auth.clear()
   },
 

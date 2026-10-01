@@ -1,10 +1,50 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { motion } from "framer-motion"
-import { Wheat } from "lucide-react"
+import { ArrowRight, Phone, Wheat } from "lucide-react"
 import type { Product } from "@/lib/api"
+import { cardExtra, type CardExtra } from "@/lib/productPages"
+import { site } from "@/lib/site"
 import { cn } from "@/lib/utils"
+
+/**
+ * The card's footer: label plus round icon, all one link. Its ::after stretches
+ * over the whole card (the article is `relative`), so the card, the label and
+ * the arrow all open the same thing.
+ */
+function CardAction({ extra }: { extra: CardExtra }) {
+  const className =
+    "mt-auto flex items-center justify-between gap-4 border-t border-line pt-5 after:absolute after:inset-0 after:z-10 after:content-['']"
+  const content = (
+    <>
+      <span className="text-[13px] font-extrabold uppercase tracking-[0.14em] text-ink underline decoration-transparent decoration-2 underline-offset-[6px] transition-colors duration-300 group-hover:decoration-gold-400">
+        {extra.action.label}
+      </span>
+      <span
+        aria-hidden
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-navy-900 text-gold-400 shadow-[0_10px_24px_-12px_rgba(0,19,119,0.8)] transition duration-500 group-hover:bg-gold-400 group-hover:text-navy-990"
+      >
+        {extra.action.kind === "page" ? (
+          <ArrowRight className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-0.5" />
+        ) : (
+          <Phone className="h-4 w-4" />
+        )}
+      </span>
+    </>
+  )
+
+  return extra.action.kind === "page" ? (
+    <Link href={extra.action.href} className={className}>
+      {content}
+    </Link>
+  ) : (
+    <a href={extra.action.href} className={className}>
+      {content}
+    </a>
+  )
+}
 
 const columnClasses = {
   two: "sm:grid-cols-2",
@@ -20,7 +60,9 @@ export function ProductGrid({
 }) {
   return (
     <div className={cn("grid gap-6", columnClasses[columns])}>
-      {products.map((product, i) => (
+      {products.map((product, i) => {
+        const extra = cardExtra(product.name)
+        return (
         <motion.article
           key={product.productId}
           initial={{ opacity: 0, y: 28 }}
@@ -31,18 +73,19 @@ export function ProductGrid({
             delay: Math.min(i, 7) * 0.06,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface-2 transition duration-500 hover:-translate-y-2 hover:border-gold-400/60 hover:shadow-[0_34px_80px_-46px_rgba(0,19,119,0.65)]"
+          className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface-2 transition duration-500 hover:-translate-y-2 hover:border-gold-400/60 hover:shadow-[0_34px_80px_-46px_rgba(0,19,119,0.65)]"
         >
-          {/* Deliberately light in both themes: every packshot is photographed
-              on white, so a dark tile would ring each bag with a white halo. */}
+          {/* Deliberately light in both themes: photos with a white backdrop are
+              the common case, so a dark tile would ring each one with a halo. */}
           <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-bone-100 to-white">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
-                alt={product.name}
+                alt={`${product.name} – ${product.category} at ${site.name}`}
+                title={product.name}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1280px) 33vw, 25vw"
-                className="object-contain p-7 transition duration-[900ms] ease-out group-hover:scale-[1.07]"
+                className="object-cover transition duration-[900ms] ease-out group-hover:scale-[1.07]"
               />
             ) : (
               <div className="grid h-full place-items-center">
@@ -101,9 +144,15 @@ export function ProductGrid({
                 </p>
               ) : null}
             </div>
+
+            {/* The whole card is the link; the footer makes that obvious. */}
+            {extra && (
+              <CardAction extra={extra} />
+            )}
           </div>
         </motion.article>
-      ))}
+        )
+      })}
     </div>
   )
 }

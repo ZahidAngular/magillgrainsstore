@@ -27,7 +27,7 @@ const instrumentSerif = Instrument_Serif({
 const description = `${site.tagline}. Grains, bird feed, animal feed, fertilizers, hay, garden supplies, poultry feeders and poultry medicine at ${site.address}.`
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://magillgrainsstore.com.au"),
+  metadataBase: new URL("https://magillgrainstore.com.au"),
   title: {
     default: `${site.name} — Quality Poultry, Bird Seeds, Grains and Premium Animal feed`,
     template: `%s | ${site.name}`,

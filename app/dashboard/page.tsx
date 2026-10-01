@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useSyncExternalStore } from "react"
@@ -11,6 +12,7 @@ import {
   Plus,
   Search,
   Trash2,
+  Wheat,
 } from "lucide-react"
 import { ProductForm } from "@/components/dashboard/ProductForm"
 import {
@@ -68,10 +70,15 @@ export default function DashboardPage() {
     if (!user) return
     let cancelled = false
 
+    // The dashboard is the signed-in user's own catalogue, so it reads their
+    // site — not the site this front end happens to publish.
+    const siteName = user.siteName ?? SITE_NAME
+
     void (async () => {
       try {
         const [products, cats] = await Promise.all([
           api.listProducts({
+            siteName,
             page,
             pageSize: PAGE_SIZE,
             search: search || undefined,
@@ -80,7 +87,7 @@ export default function DashboardPage() {
             includeHidden: status === "all" || undefined,
             isActive: status === "hidden" ? false : undefined,
           }),
-          api.categories(),
+          api.categories(siteName),
         ])
         if (cancelled) return
         setResult(products)
@@ -268,12 +275,29 @@ export default function DashboardPage() {
                 items.map((p) => (
                   <tr key={p.productId} className="border-b border-line last:border-0">
                     <td className="px-6 py-4">
-                      <span className="font-bold text-ink">{p.name}</span>
-                      {p.description && (
-                        <span className="mt-1 block text-[12px] text-ink-muted">
-                          {p.description}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-3">
+                        <div className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-surface-3">
+                          {p.imageUrl ? (
+                            <Image
+                              src={p.imageUrl}
+                              alt={p.name}
+                              fill
+                              sizes="48px"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <Wheat className="h-5 w-5 text-ink-muted" />
+                          )}
+                        </div>
+                        <div>
+                          <span className="font-bold text-ink">{p.name}</span>
+                          {p.description && (
+                            <span className="mt-1 block text-[12px] text-ink-muted">
+                              {p.description}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-ink-body">{p.category}</td>
                     <td className="px-6 py-4">

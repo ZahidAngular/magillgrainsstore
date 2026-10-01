@@ -20,7 +20,7 @@ const structuredData = {
   description,
   telephone: site.phone,
   email: site.email,
-  url: "https://magillgrainsstore.com.au",
+  url: "https://magillgrainstore.com.au",
   address: {
     "@type": "PostalAddress",
     streetAddress: "574 Magill Road",
