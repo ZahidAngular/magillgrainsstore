@@ -91,6 +91,28 @@ export function ContactForm({
         )}
       </button>
 
+      <p className="text-xs leading-relaxed text-ink-muted">
+        This site is protected by reCAPTCHA and the Google{" "}
+        <a
+          href="https://policies.google.com/privacy"
+          target="_blank"
+          rel="noreferrer"
+          className="underline hover:text-ink"
+        >
+          Privacy Policy
+        </a>{" "}
+        and{" "}
+        <a
+          href="https://policies.google.com/terms"
+          target="_blank"
+          rel="noreferrer"
+          className="underline hover:text-ink"
+        >
+          Terms of Service
+        </a>{" "}
+        apply.
+      </p>
+
       {status === "success" && (
         <p
           role="status"

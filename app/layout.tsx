@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Instrument_Serif, Inter_Tight } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
 import { themeInitScript } from "@/components/ThemeToggle"
 import { site } from "@/lib/site"
@@ -55,7 +56,19 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="bg-surface font-sans text-ink-body">{children}</body>
+      <body className="bg-surface font-sans text-ink-body">
+        {children}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-CGVW1CNXQE"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-CGVW1CNXQE');`}
+        </Script>
+      </body>
     </html>
   )
 }

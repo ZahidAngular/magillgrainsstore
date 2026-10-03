@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { ProductGrid } from "@/components/ProductGrid"
 import { ProductGridSkeleton } from "@/components/ProductGridSkeleton"
 import { EnquiryPanel } from "@/components/EnquiryPanel"
@@ -21,6 +22,12 @@ export function CategoryProducts({
   heading?: ReactNode
 }) {
   const [products, setProducts] = useState<Product[] | null>(null)
+  // useSearchParams (not a plain window.location read) so a second search
+  // click while already on this category's page — same route, new query —
+  // re-highlights the new product instead of being stuck on the first one.
+  const searchParams = useSearchParams()
+  const highlightParam = searchParams.get("highlight")
+  const highlightId = highlightParam ? Number(highlightParam) : null
 
   useEffect(() => {
     let active = true
@@ -53,7 +60,7 @@ export function CategoryProducts({
       />
       <div className="mx-auto max-w-7xl px-6">
         {heading}
-        <ProductGrid products={products} />
+        <ProductGrid products={products} highlightId={highlightId} />
       </div>
     </section>
   ) : (

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import { ChevronDown, Mail, MapPin, Menu, Phone, X } from "lucide-react"
 import { Logo } from "@/components/Logo"
 import { MegaPanel } from "@/components/MegaPanel"
+import { SearchButton } from "@/components/SearchButton"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { megaMenus, site } from "@/lib/site"
 import { cn } from "@/lib/utils"
@@ -170,6 +171,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <SearchButton />
             <ThemeToggle />
             <a
               href={site.phoneHref}

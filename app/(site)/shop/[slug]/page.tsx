@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { PageHero } from "@/components/PageHero"
 import { CategoryProducts } from "@/components/CategoryProducts"
@@ -217,22 +218,24 @@ export default async function CategoryPage({
       {isGrit && <GritCategoryIntro />}
       {isPoultryFeed && <PoultryFeedCategoryIntro />}
       {isPoultryFeeders && <PoultryFeedersCategoryIntro />}
-      <CategoryProducts
-        category={category}
-        heading={
-          isGrains ? (
-            <GrainsRangeHeading />
-          ) : isPlainSeed ? (
-            <PlainSeedRangeHeading />
-          ) : isGrit ? (
-            <GritRangeHeading />
-          ) : isPoultryFeed ? (
-            <PoultryFeedRangeHeading />
-          ) : isPoultryFeeders ? (
-            <PoultryFeedersRangeHeading />
-          ) : undefined
-        }
-      />
+      <Suspense fallback={null}>
+        <CategoryProducts
+          category={category}
+          heading={
+            isGrains ? (
+              <GrainsRangeHeading />
+            ) : isPlainSeed ? (
+              <PlainSeedRangeHeading />
+            ) : isGrit ? (
+              <GritRangeHeading />
+            ) : isPoultryFeed ? (
+              <PoultryFeedRangeHeading />
+            ) : isPoultryFeeders ? (
+              <PoultryFeedersRangeHeading />
+            ) : undefined
+          }
+        />
+      </Suspense>
       {isLivestock && <LivestockCategoryDetails />}
       {isGrains && <GrainsCategoryDetails />}
       {isPlainSeed && <PlainSeedCategoryDetails />}

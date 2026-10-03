@@ -1,9 +1,7 @@
 
-const RECAPTCHA_SITE_KEY = "6Ldu0XUtAAAAAGA58lfHZm6X3W6HC_0O1Fzctr4s";
+const RECAPTCHA_SITE_KEY = "6LelwsYtAAAAAGEZ3fVd2Hc6RBM6wjfmo5L2tQ6Z";
 
-
-// Off for now — the key is Angel Food's and this domain will get its own later.
-const ENABLE_RECAPTCHA = false;
+const ENABLE_RECAPTCHA = true;
 
 const LEAD_API_URL = "https://webapi.webappconsulting.com.au/api/contactus/save";
 const WEBSITE_ID = "32";

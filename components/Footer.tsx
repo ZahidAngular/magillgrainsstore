@@ -97,13 +97,32 @@ export function Footer() {
       </div>
 
       <div className="relative border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-6 text-xs text-navy-200 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-6 text-xs text-navy-200 md:flex-row md:items-center md:justify-between">
           <p>
-            Copyright © {new Date().getFullYear()} {site.name}. All rights reserved.
+            © {new Date().getFullYear()} {site.name} · ABN registered, SA
           </p>
-          <p>ABN registered · Proudly serving South Australia</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 md:justify-end">
+            {legalLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="transition hover:text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </footer>
   )
 }
+
+const legalLinks = [
+  { label: "Compliance", href: "/compliance" },
+  { label: "Cookie Policy", href: "/cookie-policy" },
+  { label: "Disclaimer", href: "/disclaimer" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Returns & Refunds Policy", href: "/returns-refunds-policy" },
+  { label: "Terms & Conditions", href: "/terms-and-conditions" },
+]

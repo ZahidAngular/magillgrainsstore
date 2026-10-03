@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, Phone, Wheat } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import type { Product } from "@/lib/api"
 import { cardExtra, type CardExtra } from "@/lib/productPages"
 import { site } from "@/lib/site"
@@ -54,17 +55,64 @@ const columnClasses = {
 export function ProductGrid({
   products,
   columns = "four",
+  highlightId,
 }: {
   products: Product[]
   columns?: keyof typeof columnClasses
+  /** A product to call out after arriving from search — glows green, then fades. */
+  highlightId?: number | null
 }) {
+  // Several products can glow at once — clicking a new search result must not
+  // cut short one that's already mid-glow, so each id keeps its own 2-minute
+  // timer rather than one shared "currently highlighted" value.
+  const [highlighted, setHighlighted] = useState<Set<number>>(new Set())
+  const timers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
+  const scrolledFor = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (!highlightId) return
+
+    const existing = timers.current.get(highlightId)
+    if (existing) clearTimeout(existing)
+
+    setHighlighted((prev) => new Set(prev).add(highlightId))
+
+    const timer = setTimeout(() => {
+      setHighlighted((prev) => {
+        const next = new Set(prev)
+        next.delete(highlightId)
+        return next
+      })
+      timers.current.delete(highlightId)
+    }, 120_000)
+    timers.current.set(highlightId, timer)
+  }, [highlightId])
+
+  useEffect(() => {
+    const allTimers = timers.current
+    return () => {
+      allTimers.forEach((t) => clearTimeout(t))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!highlightId || scrolledFor.current === highlightId) return
+    const el = document.getElementById(`product-${highlightId}`)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      scrolledFor.current = highlightId
+    }
+  }, [highlightId, products])
+
   return (
     <div className={cn("grid gap-6", columnClasses[columns])}>
       {products.map((product, i) => {
         const extra = cardExtra(product.name)
+        const isHighlighted = highlighted.has(product.productId)
         return (
         <motion.article
           key={product.productId}
+          id={`product-${product.productId}`}
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
@@ -73,7 +121,11 @@ export function ProductGrid({
             delay: Math.min(i, 7) * 0.06,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface-2 transition duration-500 hover:-translate-y-2 hover:border-gold-400/60 hover:shadow-[0_34px_80px_-46px_rgba(0,19,119,0.65)]"
+          className={cn(
+            "group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface-2 transition duration-500 hover:-translate-y-2 hover:border-gold-400/60 hover:shadow-[0_34px_80px_-46px_rgba(0,19,119,0.65)]",
+            isHighlighted &&
+              "border-green-500 ring-2 ring-green-500/60 hover:border-green-500"
+          )}
         >
           {/* Deliberately light in both themes: photos with a white backdrop are
               the common case, so a dark tile would ring each one with a halo. */}
