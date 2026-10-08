@@ -3,15 +3,18 @@
 import Image from "next/image"
 import Link from "next/link"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   ArrowRight,
   BadgeCheck,
+  ChevronLeft,
+  ChevronRight,
   Leaf,
   Phone,
   Sparkles,
   Truck,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { Counter } from "@/components/Counter"
 import { Monogram } from "@/components/Monogram"
 import { ProductGrid } from "@/components/ProductGrid"
@@ -433,8 +436,63 @@ export function HomeContent() {
 
 /* ──────────────────────────────────────────────────────────────────── */
 
+type Slide = {
+  id: string
+  kicker: string
+  /** The middle line is set in the gold italic, as on the original hero. */
+  lines: [string, string, string]
+  body: string
+  cta: { label: string; href: string }
+  image: string
+  /** CSS object-position for photos that need cropping to the 16:10 frame. */
+  position?: string
+  alt: string
+}
+
+const slides: Slide[] = [
+  {
+    id: "welcome",
+    kicker: `Welcome to ${site.name}`,
+    lines: ["Quality Poultry,", "Bird Seeds, Grains", "and Premium Animal feed"],
+    body: `${site.tagline}. Trusted by South Australian farmers, breeders and backyard flock keepers — sourced fresh, priced fairly, stocked daily at 574 Magill Road.`,
+    cta: { label: "Browse Products", href: "/products" },
+    image: "/images/site/chickens.jpg",
+    alt: "Free range chickens at an Australian farm",
+  },
+  {
+    id: "grains",
+    kicker: "Grains & Poultry Feed",
+    lines: ["Fresh Grain,", "Feed & Pellets", "by the Bag"],
+    body: "Lupins, barley, wheat and maize from 1KG to 20KG, plus starter, grower, layer and finisher pellets for every stage of the flock.",
+    cta: { label: "Shop Grains", href: "/shop/grains" },
+    image: "/images/site/about-big.png",
+    // A square photo in a 16:10 frame: keep the hen and the eggs, trim the rafters.
+    position: "50% 100%",
+    alt: "A hen resting on a nest box of eggs in a sunlit barn",
+  },
+  {
+    id: "birds",
+    kicker: "Bird Seed",
+    lines: ["Seed Mixes for", "Every Bird,", "Big and Small"],
+    body: "Budgie, canary, finch, parrot and pigeon mixes, plus hand-rearing formulas and specialist nutrition.",
+    cta: { label: "Shop Bird Seed", href: "/shop/bird-seed" },
+    image: "/images/site/hero-birds.jpg",
+    alt: "A blue and yellow macaw",
+  },
+]
+
+const SLIDE_MS = 6500
+
+const arrowButton =
+  "grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/20 bg-navy-990/40 text-white backdrop-blur transition hover:border-gold-400 hover:bg-gold-400 hover:text-navy-990"
+
 function Hero() {
   const ref = useRef<HTMLElement>(null)
+  const touchStartX = useRef<number | null>(null)
+  const [index, setIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -444,8 +502,46 @@ function Hero() {
   const copyY = useTransform(scrollYProgress, [0, 1], [0, 90])
   const copyOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
 
+  const go = useCallback((step: number) => {
+    setIndex((i) => (i + step + slides.length) % slides.length)
+  }, [])
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const update = () => setReducedMotion(query.matches)
+    update()
+    query.addEventListener("change", update)
+    return () => query.removeEventListener("change", update)
+  }, [])
+
+  // One timeout per slide, so a manual click restarts the full interval
+  // instead of flipping again a moment later.
+  useEffect(() => {
+    if (paused || reducedMotion) return
+    const timer = setTimeout(() => go(1), SLIDE_MS)
+    return () => clearTimeout(timer)
+  }, [index, paused, reducedMotion, go])
+
   return (
-    <section ref={ref} className="mesh-navy relative overflow-hidden">
+    <section
+      ref={ref}
+      aria-roledescription="carousel"
+      aria-label="Featured"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+      onTouchStart={(e) => {
+        touchStartX.current = e.touches[0].clientX
+      }}
+      onTouchEnd={(e) => {
+        if (touchStartX.current === null) return
+        const dx = e.changedTouches[0].clientX - touchStartX.current
+        touchStartX.current = null
+        if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1)
+      }}
+      className="mesh-navy relative overflow-hidden"
+    >
       <div className="grain-texture absolute inset-0" />
       <motion.div
         aria-hidden
@@ -455,66 +551,89 @@ function Hero() {
         className="absolute -left-40 top-1/4 h-[32rem] w-[32rem] rounded-full bg-navy-700/40 blur-[130px]"
       />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-6 pb-16 pt-20 lg:grid-cols-[1.08fr_0.92fr] lg:pb-24 lg:pt-28">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-6 pb-24 pt-20 lg:grid-cols-[1.08fr_0.92fr] lg:px-16 lg:pb-24 lg:pt-28">
         <motion.div style={{ y: copyY, opacity: copyOpacity }}>
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="flex items-center gap-3"
-          >
-            <span className="h-px w-10 rule-gold" />
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-gold-400">
-              Welcome to {site.name}
-            </span>
-          </motion.div>
+          {/*
+           * Every slide's copy sits in the same grid cell, so the hero is always
+           * as tall as the tallest slide and the page below never jumps when
+           * the slide changes. Only the active one is visible, focusable, and
+           * the page's <h1>.
+           */}
+          <div className="grid">
+            {slides.map((slide, i) => {
+              const active = i === index
+              const Heading = active ? "h1" : "div"
+              return (
+                <div
+                  key={slide.id}
+                  aria-hidden={!active}
+                  className={cn(
+                    "[grid-area:1/1] transition-[opacity,visibility] duration-500",
+                    active ? "opacity-100" : "pointer-events-none invisible opacity-0"
+                  )}
+                >
+                  <div key={active ? "on" : "off"}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7 }}
+                      className="flex items-center gap-3"
+                    >
+                      <span className="h-px w-10 rule-gold" />
+                      <span className="text-xs font-bold uppercase tracking-[0.18em] text-gold-400">
+                        {slide.kicker}
+                      </span>
+                    </motion.div>
 
-          <h1 className="display mt-9 text-[3.1rem] text-white sm:text-[4.4rem] lg:text-[5.6rem]">
-            <Line index={0}>Quality Poultry,</Line>
-            <Line index={1}>
-              <span className="display-italic text-gold-400">
-                Bird Seeds, Grains
-              </span>
-            </Line>
-            <Line index={2}>and Premium Animal feed</Line>
-          </h1>
+                    <Heading className="display mt-9 text-[3.1rem] text-white sm:text-[4.4rem] lg:text-[5.6rem]">
+                      <Line index={0}>{slide.lines[0]}</Line>
+                      <Line index={1}>
+                        <span className="display-italic text-gold-400">
+                          {slide.lines[1]}
+                        </span>
+                      </Line>
+                      <Line index={2}>{slide.lines[2]}</Line>
+                    </Heading>
 
-          <motion.p
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.6 }}
-            className="mt-9 max-w-xl text-[17px] leading-relaxed text-navy-200"
-          >
-            {site.tagline}. Trusted by South Australian farmers, breeders and
-            backyard flock keepers — sourced fresh, priced fairly, stocked daily
-            at 574 Magill Road.
-          </motion.p>
+                    <motion.p
+                      initial={{ opacity: 0, y: 22 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.9, delay: 0.6 }}
+                      className="mt-9 max-w-xl text-[17px] leading-relaxed text-navy-200"
+                    >
+                      {slide.body}
+                    </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.75 }}
-            className="mt-11 flex flex-wrap items-center gap-4"
-          >
-            <Magnetic>
-              <Link
-                href="/products"
-                className="group inline-flex items-center gap-2 rounded-full bg-gold-400 px-9 py-4.5 text-sm font-bold uppercase tracking-wide text-navy-990 transition hover:bg-gold-300"
-              >
-                Browse Products
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Magnetic>
-            <Magnetic>
-              <a
-                href={site.phoneHref}
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-9 py-4.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur transition hover:border-white/40 hover:bg-surface-2/5"
-              >
-                <Phone className="h-4 w-4 text-gold-400" />
-                {site.phone}
-              </a>
-            </Magnetic>
-          </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 22 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.9, delay: 0.75 }}
+                      className="mt-11 flex flex-wrap items-center gap-4"
+                    >
+                      <Magnetic>
+                        <Link
+                          href={slide.cta.href}
+                          className="group inline-flex items-center gap-2 rounded-full bg-gold-400 px-9 py-4.5 text-sm font-bold uppercase tracking-wide text-navy-990 transition hover:bg-gold-300"
+                        >
+                          {slide.cta.label}
+                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                      </Magnetic>
+                      <Magnetic>
+                        <a
+                          href={site.phoneHref}
+                          className="inline-flex items-center gap-2 rounded-full border border-white/20 px-9 py-4.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur transition hover:border-white/40 hover:bg-surface-2/5"
+                        >
+                          <Phone className="h-4 w-4 text-gold-400" />
+                          {site.phone}
+                        </a>
+                      </Magnetic>
+                    </motion.div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </motion.div>
 
         {/*
@@ -531,14 +650,26 @@ function Hero() {
         >
           <div className="relative aspect-[16/10] overflow-hidden rounded-[1.75rem] border border-white/10">
             <motion.div style={{ y: imageY, scale: imageScale }} className="absolute inset-0">
-              <Image
-                src="/images/site/chickens.jpg"
-                alt="Free range chickens at an Australian farm"
-                fill
-                priority
-                sizes="(max-width: 1024px) 90vw, 30rem"
-                className="object-cover"
-              />
+              {slides.map((slide, i) => (
+                <div
+                  key={slide.id}
+                  aria-hidden={i !== index}
+                  className={cn(
+                    "absolute inset-0 transition-opacity duration-[900ms] ease-out",
+                    i === index ? "opacity-100" : "opacity-0"
+                  )}
+                >
+                  <Image
+                    src={slide.image}
+                    alt={slide.alt}
+                    fill
+                    priority={i === 0}
+                    sizes="(max-width: 1024px) 90vw, 30rem"
+                    style={slide.position ? { objectPosition: slide.position } : undefined}
+                    className="object-cover"
+                  />
+                </div>
+              ))}
             </motion.div>
             <div className="absolute inset-0 bg-gradient-to-t from-navy-990/60 via-transparent to-transparent" />
           </div>
@@ -562,6 +693,59 @@ function Hero() {
             </ul>
           </motion.div>
         </motion.div>
+
+        {/* Left / right arrows, in the gutters on desktop. */}
+        <button
+          type="button"
+          onClick={() => go(-1)}
+          aria-label="Previous slide"
+          className={cn(arrowButton, "absolute left-3 top-1/2 z-20 hidden -translate-y-1/2 lg:grid")}
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => go(1)}
+          aria-label="Next slide"
+          className={cn(arrowButton, "absolute right-3 top-1/2 z-20 hidden -translate-y-1/2 lg:grid")}
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+
+        {/* Dots, with the arrows flanking them on smaller screens. */}
+        <div className="absolute inset-x-0 bottom-5 z-20 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            aria-label="Previous slide"
+            className={cn(arrowButton, "lg:hidden")}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            {slides.map((slide, i) => (
+              <button
+                key={slide.id}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                aria-current={i === index}
+                className={cn(
+                  "h-2.5 rounded-full transition-all duration-500",
+                  i === index ? "w-8 bg-gold-400" : "w-2.5 bg-white/30 hover:bg-white/60"
+                )}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => go(1)}
+            aria-label="Next slide"
+            className={cn(arrowButton, "lg:hidden")}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       <div className="relative border-t border-white/10">
