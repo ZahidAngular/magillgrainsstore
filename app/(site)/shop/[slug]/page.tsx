@@ -32,6 +32,18 @@ import {
   PoultryFeedersCategoryIntro,
   PoultryFeedersRangeHeading,
 } from "@/components/poultry-feeders/category"
+import { cattleHorseCategory } from "@/lib/cattleHorse"
+import {
+  CattleHorseCategoryDetails,
+  CattleHorseCategoryIntro,
+  CattleHorseRangeHeading,
+} from "@/components/cattle-horse/category"
+import { birdSeedCategory } from "@/lib/birdSeed"
+import {
+  BirdSeedCategoryDetails,
+  BirdSeedCategoryIntro,
+  BirdSeedRangeHeading,
+} from "@/components/bird-seed/category"
 
 /**
  * One route for every category in the API. The pages differ only in their
@@ -94,6 +106,18 @@ export async function generateMetadata({
       description: poultryFeedersCategory.metaDescription,
       alternates: { canonical: "/shop/poultry-feeders" },
     }
+  if (slug === "cattle-horse")
+    return {
+      title: { absolute: cattleHorseCategory.metaTitle },
+      description: cattleHorseCategory.metaDescription,
+      alternates: { canonical: "/shop/cattle-horse" },
+    }
+  if (slug === "bird-seed")
+    return {
+      title: { absolute: birdSeedCategory.metaTitle },
+      description: birdSeedCategory.metaDescription,
+      alternates: { canonical: "/shop/bird-seed" },
+    }
   return {
     title: category,
     description: `${category} at Magill Grain Store, 574 Magill Road, Magill SA 5072.`,
@@ -114,6 +138,8 @@ export default async function CategoryPage({
   const isGrit = slug === "grit"
   const isPoultryFeed = slug === "poultry-feed"
   const isPoultryFeeders = slug === "poultry-feeders"
+  const isCattleHorse = slug === "cattle-horse"
+  const isBirdSeed = slug === "bird-seed"
 
   const heroTitle = isLivestock
     ? livestockCategory.h1
@@ -127,7 +153,11 @@ export default async function CategoryPage({
             ? poultryFeedCategory.h1
             : isPoultryFeeders
               ? poultryFeedersCategory.h1
-              : category
+              : isCattleHorse
+                ? cattleHorseCategory.h1
+                : isBirdSeed
+                  ? birdSeedCategory.h1
+                  : category
 
   return (
     <main className="bg-surface">
@@ -218,6 +248,8 @@ export default async function CategoryPage({
       {isGrit && <GritCategoryIntro />}
       {isPoultryFeed && <PoultryFeedCategoryIntro />}
       {isPoultryFeeders && <PoultryFeedersCategoryIntro />}
+      {isCattleHorse && <CattleHorseCategoryIntro />}
+      {isBirdSeed && <BirdSeedCategoryIntro />}
       <Suspense fallback={null}>
         <CategoryProducts
           category={category}
@@ -232,6 +264,10 @@ export default async function CategoryPage({
               <PoultryFeedRangeHeading />
             ) : isPoultryFeeders ? (
               <PoultryFeedersRangeHeading />
+            ) : isCattleHorse ? (
+              <CattleHorseRangeHeading />
+            ) : isBirdSeed ? (
+              <BirdSeedRangeHeading />
             ) : undefined
           }
         />
@@ -242,6 +278,8 @@ export default async function CategoryPage({
       {isGrit && <GritCategoryDetails />}
       {isPoultryFeed && <PoultryFeedCategoryDetails />}
       {isPoultryFeeders && <PoultryFeedersCategoryDetails />}
+      {isCattleHorse && <CattleHorseCategoryDetails />}
+      {isBirdSeed && <BirdSeedCategoryDetails />}
     </main>
   )
 }
