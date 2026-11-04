@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/lib/orders"
+import { SHOP_ENABLED } from "@/lib/shopFlag"
 import { cn } from "@/lib/utils"
 
 /**
@@ -14,7 +15,7 @@ import { cn } from "@/lib/utils"
 export function CartButton({ onNavigate, className }: { onNavigate?: () => void; className?: string }) {
   const cart = useCart()
   const count = cart?.reduce((sum, l) => sum + l.quantity, 0) ?? 0
-  if (count === 0) return null
+  if (!SHOP_ENABLED || count === 0) return null
 
   const badge = count > 99 ? "99+" : String(count)
 

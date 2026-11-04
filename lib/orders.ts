@@ -12,6 +12,7 @@
  */
 
 import { useMemo, useSyncExternalStore } from "react"
+import { SHOP_ENABLED } from "@/lib/shopFlag"
 import { API_BASE, SITE_NAME, type ApiResponse, type Product } from "@/lib/api"
 
 /** Categories whose products carry a Buy Now button. */
@@ -35,7 +36,7 @@ export function onlineSize(product: Product) {
   return priced.length === 1 && priced[0].productSizeId ? priced[0] : null
 }
 
-export const canBuyOnline = (product: Product) => onlineSize(product) !== null
+export const canBuyOnline = (product: Product) => SHOP_ENABLED && onlineSize(product) !== null
 
 /* ------------------------------------------------------------------ */
 /* The cart                                                            */
