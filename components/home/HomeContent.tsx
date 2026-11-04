@@ -134,7 +134,7 @@ export function HomeContent() {
               className="relative aspect-[4/3] w-[86%] overflow-hidden rounded-[2rem] border border-line bg-surface-2"
             >
               <Image
-                src="/images/site/about-big.png"
+                src="/images/site/about-big.jpg"
                 alt="Magill Grain Store produce"
                 fill
                 sizes="(max-width: 1024px) 86vw, 32rem"
@@ -305,7 +305,7 @@ export function HomeContent() {
             the headline rather than as background texture. */}
         <Parallax distance={55} className="absolute inset-0">
           <Image
-            src="/images/site/records-bg.png"
+            src="/images/site/records-bg.jpg"
             alt=""
             fill
             sizes="100vw"
@@ -465,7 +465,7 @@ const slides: Slide[] = [
     lines: ["Fresh Grain,", "Feed & Pellets", "by the Bag"],
     body: "Lupins, barley, wheat and maize from 1KG to 20KG, plus starter, grower, layer and finisher pellets for every stage of the flock.",
     cta: { label: "Shop Grains", href: "/shop/grains" },
-    image: "/images/site/about-big.png",
+    image: "/images/site/about-big.jpg",
     // A square photo in a 16:10 frame: keep the hen and the eggs, trim the rafters.
     position: "50% 100%",
     alt: "A hen resting on a nest box of eggs in a sunlit barn",

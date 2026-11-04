@@ -69,6 +69,18 @@
   --accent-ink: #f8c53c;
 }
 
+/* The header shows the navy logo on the light theme and the cream one on the
+   dark theme (both transparent); see components/Logo.tsx. */
+.logo-for-dark {
+  display: none;
+}
+.dark .logo-for-light {
+  display: none;
+}
+.dark .logo-for-dark {
+  display: block;
+}
+
 /* Suppress transition flash while the theme class is swapped */
 .theme-switching * {
   transition: none !important;

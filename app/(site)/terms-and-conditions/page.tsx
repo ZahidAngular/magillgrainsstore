@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { withSocial } from "@/lib/seo"
 import Link from "next/link"
 import {
   LegalList,
@@ -6,11 +7,11 @@ import {
   LegalSection,
 } from "@/components/legal/LegalPageLayout"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocial({
   title: "Terms & Conditions",
   description:
     "These Terms and Conditions govern your use of the Magill Grain Store website and your purchase of products through our online services, where available.",
-}
+}, "/terms-and-conditions")
 
 export default function TermsAndConditionsPage() {
   return (

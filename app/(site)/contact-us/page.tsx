@@ -1,14 +1,15 @@
 import type { Metadata } from "next"
+import { withSocial } from "@/lib/seo"
 import { Clock, Mail, MapPin, Phone } from "lucide-react"
 import { PageHero } from "@/components/PageHero"
 import { ContactForm } from "@/components/ContactForm"
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal"
 import { site } from "@/lib/site"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocial({
   title: "Contact Us",
-  description: `Call ${site.phone}, email ${site.email} or visit us at ${site.address}.`,
-}
+  description: `Call ${site.phone}, email ${site.email} or visit us at ${site.address}. Open six days a week.`,
+}, "/contact-us")
 
 export default function ContactPage() {
   return (
@@ -82,7 +83,7 @@ export default function ContactPage() {
           <div className="overflow-hidden rounded-3xl border border-line">
             <iframe
               title="Magill Grain Store location"
-              src="https://www.google.com/maps?q=574+Magill+Road,+Magill+SA+5072&output=embed"
+              src="https://www.google.com/maps/embed?origin=mfe&pb=!1m2!2m1!1s574+Magill+Road,+Magill+SA+5072"
               className="h-[420px] w-full"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

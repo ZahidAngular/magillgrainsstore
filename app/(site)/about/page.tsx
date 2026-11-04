@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { withSocial } from "@/lib/seo"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, BadgeCheck } from "lucide-react"
@@ -8,11 +9,11 @@ import { Parallax } from "@/components/motion/Parallax"
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal"
 import { pillars, records, services, site } from "@/lib/site"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocial({
   title: "About",
   description:
     "We are based in Magill. Our services include grains, bird feed, animal feed, fertilizers, hay and mulch, garden supplies, poultry feeders and poultry medicine.",
-}
+}, "/about")
 
 export default function AboutPage() {
   return (
@@ -27,7 +28,7 @@ export default function AboutPage() {
           <Reveal from="right">
             <Parallax distance={34} className="overflow-hidden rounded-3xl border border-line">
               <Image
-                src="/images/site/about-big.png"
+                src="/images/site/about-big.jpg"
                 alt="Magill Grain Store"
                 width={900}
                 height={700}

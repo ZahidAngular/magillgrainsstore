@@ -1,15 +1,16 @@
 import type { Metadata } from "next"
+import { withSocial } from "@/lib/seo"
 import {
   LegalList,
   LegalPageLayout,
   LegalSection,
 } from "@/components/legal/LegalPageLayout"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocial({
   title: "Compliance & Consumer Information",
   description:
-    "Magill Grain Store is committed to conducting its business responsibly and providing customers with clear and useful information about our products, services and purchasing processes.",
-}
+    "Magill Grain Store is committed to conducting its business responsibly and giving customers clear information about our products, services and purchasing.",
+}, "/compliance")
 
 export default function CompliancePage() {
   return (

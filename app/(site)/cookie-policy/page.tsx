@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { withSocial } from "@/lib/seo"
 import {
   LegalList,
   LegalPageLayout,
@@ -6,11 +7,11 @@ import {
   LegalSubheading,
 } from "@/components/legal/LegalPageLayout"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocial({
   title: "Cookie Policy",
   description:
     "This Cookie Policy explains how Magill Grain Store may use cookies and similar technologies when you visit our website.",
-}
+}, "/cookie-policy")
 
 export default function CookiePolicyPage() {
   return (

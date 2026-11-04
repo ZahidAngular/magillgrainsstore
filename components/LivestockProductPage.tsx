@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, BadgeCheck, Clock, MapPin, Phone, PhoneCall } from "lucide-react"
+import { BuyNowButton } from "@/components/BuyNowButton"
 import { PageHero } from "@/components/PageHero"
 import { Reveal } from "@/components/motion/Reveal"
 import {
@@ -10,7 +11,8 @@ import {
   ReasonsBand,
   SectionHeading,
 } from "@/components/livestock/sections"
-import type { LivestockContent } from "@/lib/livestock"
+import { livestockPages, type LivestockContent } from "@/lib/livestock"
+import { withSocial } from "@/lib/seo"
 import { getProductsByCategory } from "@/lib/shop"
 import { site } from "@/lib/site"
 
@@ -18,11 +20,14 @@ const SITE_URL = "https://magillgrainstore.com.au"
 const CATEGORY = { label: "Livestock", href: "/shop/livestock" }
 
 export function livestockMetadata(page: LivestockContent): Metadata {
-  return {
-    title: { absolute: page.metaTitle },
-    description: page.metaDescription,
-    alternates: { canonical: page.path },
-  }
+  return withSocial(
+    {
+      title: { absolute: page.metaTitle },
+      description: page.metaDescription,
+      alternates: { canonical: page.path },
+    },
+    page.path
+  )
 }
 
 /** The brief's three schemas; the price is read from the dashboard at build time. */
@@ -91,6 +96,10 @@ async function schemas(page: LivestockContent) {
 
 export async function LivestockProductPage({ page }: { page: LivestockContent }) {
   const jsonLd = await schemas(page)
+  // The same product the cards sell, so "Buy now" is on the page they open.
+  const product = (await getProductsByCategory("Livestock")).find(
+    (p) => p.name.trim().toLowerCase() === page.productName.toLowerCase()
+  )
 
   return (
     <main className="bg-surface">
@@ -156,6 +165,7 @@ export async function LivestockProductPage({ page }: { page: LivestockContent })
                 <PhoneCall className="h-4 w-4 text-gold-400" />
                 Call {site.phone}
               </a>
+              {product && <BuyNowButton product={product} className="mt-3" />}
               <Link
                 href={CATEGORY.href}
                 className="group mt-3 flex items-center justify-center gap-2 rounded-full border border-line px-6 py-3.5 text-xs font-extrabold uppercase tracking-wide text-ink transition hover:border-gold-400"
@@ -163,6 +173,24 @@ export async function LivestockProductPage({ page }: { page: LivestockContent })
                 <ArrowLeft className="h-4 w-4 text-gold-500 transition-transform group-hover:-translate-x-1" />
                 Back to Livestock
               </Link>
+
+              <div className="mt-6 border-t border-line pt-5">
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-ink">Also see</p>
+                <ul className="mt-3 space-y-2 text-sm">
+                  {livestockPages
+                    .filter((p) => p.path !== page.path)
+                    .map((p) => (
+                      <li key={p.path}>
+                        <Link
+                          href={p.path}
+                          className="font-semibold text-accent-ink underline decoration-gold-400 underline-offset-4 hover:decoration-2"
+                        >
+                          {p.name}
+                        </Link>
+                      </li>
+                    ))}
+                </ul>
+              </div>
             </aside>
           </Reveal>
         </div>

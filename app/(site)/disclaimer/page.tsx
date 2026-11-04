@@ -1,15 +1,16 @@
 import type { Metadata } from "next"
+import { withSocial } from "@/lib/seo"
 import {
   LegalList,
   LegalPageLayout,
   LegalSection,
 } from "@/components/legal/LegalPageLayout"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocial({
   title: "Disclaimer",
   description:
     "The information provided by Magill Grain Store through this website is intended to provide general information about our business, products and services.",
-}
+}, "/disclaimer")
 
 export default function DisclaimerPage() {
   return (

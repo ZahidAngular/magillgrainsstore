@@ -4,6 +4,16 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "cleanUrls": true,
     "trailingSlash": false,
+    "redirects": [
+      { "source": "/rat-mouse", "destination": "/products", "type": 301 },
+      { "source": "/rat-mouse/", "destination": "/products", "type": 301 },
+      { "source": "/passwell-wambaroo-and-vitafarm", "destination": "/shop/passwell-wambaroo-and-vitafarm", "type": 301 },
+      { "source": "/passwell-wambaroo-and-vitafarm/", "destination": "/shop/passwell-wambaroo-and-vitafarm", "type": 301 },
+      { "source": "/bird-seed-1-10kg", "destination": "/shop/bird-seed", "type": 301 },
+      { "source": "/bird-seed-1-10kg/", "destination": "/shop/bird-seed", "type": 301 },
+      { "source": "/rabbit-supplies", "destination": "/shop/rabbit-supplies", "type": 301 },
+      { "source": "/rabbit-supplies/", "destination": "/shop/rabbit-supplies", "type": 301 }
+    ],
     "headers": [
       {
         "source": "**",

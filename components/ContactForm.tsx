@@ -1,14 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Check, Loader2, Send } from "lucide-react"
-import { preloadRecaptcha, submitLead } from "@/lib/formService"
+import { preloadRecaptcha, submitLead, watchFormSettings } from "@/lib/formService"
 
 type Status = "idle" | "submitting" | "success" | "error"
 
 /**
- * Sends the enquiry to the WebAppConsulting lead API (website id 32), which
- * emails it on — the visitor never has to open their own mail client.
+ * Sends the enquiry to the WebAppConsulting lead API, which emails it on — the
+ * visitor never has to open their own mail client. The CRM website id and the
+ * reCAPTCHA key are set per site in the admin dashboard.
  *
  * `emailLabel` exists because the store labelled this field differently on
  * different pages — "E-mail" on Contact Us, "Email Address" on the garden
@@ -20,6 +21,13 @@ export function ContactForm({
   emailLabel?: string
 } = {}) {
   const [status, setStatus] = useState<Status>("idle")
+  // The reCAPTCHA notice only shows while reCAPTCHA is switched on in the dashboard.
+  const [recaptchaOn, setRecaptchaOn] = useState(false)
+
+  // Fetch the form settings while the visitor is still reading, so submitting never waits on them.
+  useEffect(() => {
+    watchFormSettings((s) => setRecaptchaOn(s.recaptchaEnabled))
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -91,6 +99,7 @@ export function ContactForm({
         )}
       </button>
 
+      {recaptchaOn && (
       <p className="text-xs leading-relaxed text-ink-muted">
         This site is protected by reCAPTCHA and the Google{" "}
         <a
@@ -112,6 +121,7 @@ export function ContactForm({
         </a>{" "}
         apply.
       </p>
+      )}
 
       {status === "success" && (
         <p

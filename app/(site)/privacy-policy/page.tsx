@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { withSocial } from "@/lib/seo"
 import Link from "next/link"
 import {
   LegalList,
@@ -6,11 +7,11 @@ import {
   LegalSection,
 } from "@/components/legal/LegalPageLayout"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocial({
   title: "Privacy Policy",
   description:
-    "Magill Grain Store respects your privacy and is committed to handling your personal information responsibly.",
-}
+    "Magill Grain Store respects your privacy and is committed to handling your personal information responsibly. Read how we collect, use and protect it.",
+}, "/privacy-policy")
 
 const anchorLink = "underline hover:text-accent-ink"
 

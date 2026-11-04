@@ -3,6 +3,7 @@ import { Instrument_Serif, Inter_Tight } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
 import { themeInitScript } from "@/components/ThemeToggle"
+import { homeDescription, homeTitle } from "@/lib/seo"
 import { site } from "@/lib/site"
 
 /**
@@ -25,12 +26,12 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-display-custom",
 })
 
-const description = `${site.tagline}. Grains, bird feed, animal feed, fertilizers, hay, garden supplies, poultry feeders and poultry medicine at ${site.address}.`
+const description = homeDescription
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://magillgrainstore.com.au"),
   title: {
-    default: `${site.name} — Quality Poultry, Bird Seeds, Grains and Premium Animal feed`,
+    default: homeTitle,
     template: `%s | ${site.name}`,
   },
   description,
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_AU",
     siteName: site.name,
-    title: `${site.name} — Quality Poultry, Bird Seeds, Grains and Premium Animal feed`,
+    title: homeTitle,
     description,
   },
   twitter: { card: "summary_large_image" },

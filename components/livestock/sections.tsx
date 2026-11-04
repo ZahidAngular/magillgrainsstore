@@ -98,7 +98,18 @@ export function FeatureCards({
                 <span className="grid h-14 w-14 place-items-center rounded-2xl bg-navy-900 text-gold-400 transition duration-500 group-hover:bg-gold-400 group-hover:text-navy-990">
                   <item.icon className="h-6 w-6" />
                 </span>
-                <h3 className="mt-6 text-xl font-extrabold text-ink">{item.title}</h3>
+                <h3 className="mt-6 text-xl font-extrabold text-ink">
+                  {item.href ? (
+                    <Link
+                      href={item.href}
+                      className="underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:decoration-gold-400"
+                    >
+                      {item.title}
+                    </Link>
+                  ) : (
+                    item.title
+                  )}
+                </h3>
                 <p className="mt-4 text-sm leading-relaxed text-ink-body md:text-[15px]">{item.body}</p>
               </div>
             </StaggerItem>

@@ -5,7 +5,9 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, Phone, Wheat } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { BuyNowButton } from "@/components/BuyNowButton"
 import type { Product } from "@/lib/api"
+import { canBuyOnline } from "@/lib/orders"
 import { cardExtra, type CardExtra } from "@/lib/productPages"
 import { site } from "@/lib/site"
 import { cn } from "@/lib/utils"
@@ -15,7 +17,24 @@ import { cn } from "@/lib/utils"
  * over the whole card (the article is `relative`), so the card, the label and
  * the arrow all open the same thing.
  */
-function CardAction({ extra }: { extra: CardExtra }) {
+function CardAction({ extra, buy }: { extra: CardExtra; buy?: React.ReactNode }) {
+  // A product that can be bought online swaps the round arrow for a Buy now
+  // pill. A button can't sit inside the link, so the label stays the link (its
+  // ::after still covers the card) and the pill sits beside it, above the cover.
+  if (buy && extra.action.kind === "page") {
+    return (
+      <div className="mt-auto flex items-center justify-between gap-4 border-t border-line pt-5">
+        <Link
+          href={extra.action.href}
+          className="text-[13px] font-extrabold uppercase tracking-[0.14em] text-ink underline decoration-transparent decoration-2 underline-offset-[6px] transition-colors duration-300 after:absolute after:inset-0 after:z-10 after:content-[''] group-hover:decoration-gold-400"
+        >
+          {extra.action.label}
+        </Link>
+        {buy}
+      </div>
+    )
+  }
+
   const className =
     "mt-auto flex items-center justify-between gap-4 border-t border-line pt-5 after:absolute after:inset-0 after:z-10 after:content-['']"
   const content = (
@@ -197,9 +216,13 @@ export function ProductGrid({
               ) : null}
             </div>
 
-            {/* The whole card is the link; the footer makes that obvious. */}
+            {/* The whole card is the link; the footer makes that obvious. Only
+                products that can be bought online get the Buy now pill. */}
             {extra && (
-              <CardAction extra={extra} />
+              <CardAction
+                extra={extra}
+                buy={canBuyOnline(product) ? <BuyNowButton product={product} compact /> : null}
+              />
             )}
           </div>
         </motion.article>

@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { PageHero } from "@/components/PageHero"
 import { CategoryProducts } from "@/components/CategoryProducts"
+import { withSocial } from "@/lib/seo"
 import { categoryFromSlug, getCategories, toSlug } from "@/lib/shop"
 import { livestockCategory, roosterSchema } from "@/lib/livestock"
 import { LivestockCategoryDetails, LivestockCategoryIntro } from "@/components/livestock/category"
@@ -68,6 +69,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
+  const meta = await categoryMetadata(slug)
+  // An unknown category renders the 404 page, which has nothing to share.
+  return Object.keys(meta).length > 0 ? withSocial(meta, `/shop/${slug}`) : meta
+}
+
+async function categoryMetadata(slug: string): Promise<Metadata> {
   const category = await categoryFromSlug(slug)
   if (!category) return {}
   if (slug === "livestock")
@@ -120,7 +127,7 @@ export async function generateMetadata({
     }
   return {
     title: category,
-    description: `${category} at Magill Grain Store, 574 Magill Road, Magill SA 5072.`,
+    description: `Shop ${category} at Magill Grain Store in Magill, Adelaide. Browse the range and prices, or visit us at 574 Magill Road, Magill SA 5072.`,
   }
 }
 

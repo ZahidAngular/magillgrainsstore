@@ -157,6 +157,12 @@ export default function DashboardPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
+              href="/dashboard/orders"
+              className="rounded-full border border-white/20 px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-white/10"
+            >
+              Orders
+            </Link>
+            <Link
               href="/"
               className="rounded-full border border-white/20 px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-white/10"
             >

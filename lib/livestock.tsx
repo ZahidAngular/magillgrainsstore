@@ -22,7 +22,13 @@ import { site } from "@/lib/site"
  * Do not paraphrase; edit the doc first, then mirror it here.
  */
 
-export type Block = { icon: LucideIcon; title: string; body: ReactNode }
+export type Block = {
+  icon: LucideIcon
+  title: string
+  body: ReactNode
+  /** Makes the title a link, e.g. to the product's own page. */
+  href?: string
+}
 export type Faq = { q: string; a: string }
 
 export type LivestockContent = {
@@ -655,6 +661,7 @@ export const livestockCategory = {
       {
         icon: Bird,
         title: "Day Old Chicks",
+        href: "/shop/livestock/day-old-chick",
         body: (
           <>
             The most common starting point for a new flock day old chicks let
@@ -666,6 +673,7 @@ export const livestockCategory = {
       {
         icon: Drumstick,
         title: "Meat Birds",
+        href: "/shop/livestock/day-old-meat-birds",
         body: (
           <>
             Purpose-raised meat bird breeds for households and small farms
@@ -676,6 +684,7 @@ export const livestockCategory = {
       {
         icon: Egg,
         title: "Pullets",
+        href: "/shop/livestock/pullets",
         body: (
           <>
             Young hens close to laying age a good option if you want eggs sooner

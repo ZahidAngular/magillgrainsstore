@@ -79,6 +79,24 @@ export type ProductInput = {
   sizes: { size: string; priceType?: string; price: number; sortOrder?: number }[]
 }
 
+export const ORDER_STATUSES = ["New", "Ready", "Collected", "Cancelled"] as const
+export type OrderStatus = (typeof ORDER_STATUSES)[number]
+
+export type Order = {
+  orderId: number
+  orderNumber: string
+  customerName: string
+  email: string
+  phone: string
+  notes?: string | null
+  status: OrderStatus
+  paymentMethod: string
+  paymentStatus: string
+  total: number
+  createdAt: string
+  items: { productName: string; sizeLabel: string; unitPrice: number; quantity: number; lineTotal: number }[]
+}
+
 /* ── session ─────────────────────────────────────────────────────────── */
 
 export const auth = {
@@ -316,9 +334,10 @@ async function request<T>(
 
 export const api = {
   async login(email: string, password: string) {
+    // siteName makes the API refuse users of other sites; Admins can still sign in.
     const data = await request<AuthPayload>("/auth/login", {
       method: "POST",
-      body: { email, password },
+      body: { email, password, siteName: SITE_NAME },
       auth: false,
     })
     auth.save(data.accessToken, data.user, data.refreshToken, data.accessTokenExpiresAt)
@@ -373,5 +392,19 @@ export const api = {
 
   deleteProduct(id: number) {
     return request<string>(`/products/${id}`, { method: "DELETE" })
+  },
+
+  listOrders(params: { siteName?: string; status?: string; page?: number; pageSize?: number } = {}) {
+    const query = new URLSearchParams()
+    query.set("siteName", params.siteName ?? SITE_NAME)
+    if (params.status) query.set("status", params.status)
+    query.set("page", String(params.page ?? 1))
+    query.set("pageSize", String(params.pageSize ?? 20))
+
+    return request<PagedResult<Order>>(`/orders?${query}`)
+  },
+
+  updateOrderStatus(id: number, status: OrderStatus) {
+    return request<Order>(`/orders/${id}/status`, { method: "PATCH", body: { status } })
   },
 }
