@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { ChevronDown, Mail, MapPin, Menu, Phone, X } from "lucide-react"
+import { CartButton } from "@/components/CartButton"
 import { Logo } from "@/components/Logo"
 import { MegaPanel } from "@/components/MegaPanel"
 import { SearchButton } from "@/components/SearchButton"
@@ -172,6 +173,7 @@ export function Header() {
 
           <div className="flex items-center gap-3">
             <SearchButton />
+            <CartButton onNavigate={closeAll} />
             <ThemeToggle />
             <a
               href={site.phoneHref}
