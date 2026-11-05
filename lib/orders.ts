@@ -12,7 +12,7 @@
  */
 
 import { useMemo, useSyncExternalStore } from "react"
-import { SHOP_ENABLED } from "@/lib/shopFlag"
+import { ORDERS_API_ENABLED, SHOP_ENABLED } from "@/lib/shopFlag"
 import { API_BASE, SITE_NAME, type ApiResponse, type Product } from "@/lib/api"
 
 /** Categories whose products carry a Buy Now button. */
@@ -200,7 +200,39 @@ export type PlacedOrder = {
 /** The server's own words when it refuses an order — worth showing as written. */
 export class OrderRefusedError extends Error {}
 
+/**
+ * Stand-in until /api/orders is published: the order is printed to the browser
+ * console and a receipt is built here, numbered from the clock. Nothing is
+ * sent anywhere, so the store does not receive these orders.
+ */
+function logOrder(details: OrderDetails, lines: CartLine[]): PlacedOrder {
+  const items = lines.map((l) => ({
+    productName: l.name,
+    sizeLabel: l.size,
+    unitPrice: l.unitPrice,
+    quantity: l.quantity,
+    lineTotal: l.unitPrice * l.quantity,
+  }))
+  const order: PlacedOrder = {
+    orderNumber: `MGS-${Date.now().toString(36).toUpperCase()}`,
+    customerName: details.customerName.trim(),
+    email: details.email.trim(),
+    total: cartTotal(lines),
+    items,
+  }
+  console.log("[Magill order]", {
+    ...order,
+    phone: details.phone.trim(),
+    notes: details.notes.trim() || null,
+    siteName: SITE_NAME,
+    placedAt: new Date().toISOString(),
+  })
+  return order
+}
+
 export async function placeOrder(details: OrderDetails, lines: CartLine[]): Promise<PlacedOrder> {
+  if (!ORDERS_API_ENABLED) return logOrder(details, lines)
+
   let res: Response
   try {
     res = await fetch(`${API_BASE}/api/orders`, {
